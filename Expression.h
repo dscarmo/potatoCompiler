@@ -48,5 +48,7 @@ SExpression *createOperation(EOperationType type, SExpression *left, SExpression
  * @param b The expression
  */
 void deleteExpression(SExpression *b);
+
+void printExpression(SExpression *t);
  
 #endif // __EXPRESSION_H__

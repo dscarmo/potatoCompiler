@@ -61,6 +61,7 @@ int main(void)
     result = evaluate(e);
  
     printf("Result of '%s' is %d\n", test, result);
+    printExpression(e);
  
     deleteExpression(e);
  

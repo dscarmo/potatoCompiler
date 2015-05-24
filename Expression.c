@@ -6,6 +6,8 @@
 #include "Expression.h"
  
 #include <stdlib.h>
+
+#include <stdio.h>
  
 /**
  * @brief Allocates space for expression
@@ -63,4 +65,27 @@ void deleteExpression(SExpression *b)
     deleteExpression(b->right);
  
     free(b);
+}
+
+//My code 
+//Left most recursive print
+void printExpression(SExpression *t)
+{
+	if (t == NULL)
+		return;
+	
+	int op = t->type;
+	
+	if (t->value != 0)
+		printf("Value: %d \n", t->value);
+	else 
+	{
+		switch(op)
+		{
+			case 1: printf("Times \n"); break;
+			case 2: printf("Plus \n"); break;
+		}
+	}
+	printExpression(t->left);
+	printExpression(t->right);
 }
