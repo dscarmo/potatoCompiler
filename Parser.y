@@ -50,15 +50,20 @@ typedef void* yyscan_t;
  
 %%
  
-input
-    : expr { *expression = $1; }
+input: 
+	expr { *expression = $1; }
     ;
  
-expr
-    : expr[L] TOKEN_PLUS expr[R] { $$ = createOperation( ePLUS, $L, $R ); }
+expr:
+    expr[L] TOKEN_PLUS expr[R] { $$ = createOperation( ePLUS, $L, $R ); }
+
     | expr[L] TOKEN_MULTIPLY expr[R] { $$ = createOperation( eMULTIPLY, $L, $R ); }
     | TOKEN_LPAREN expr[E] TOKEN_RPAREN { $$ = $E; }
     | TOKEN_NUMBER { $$ = createNumber($1); }
     ;
+    
+/*
+ * 
+ */
  
 %%

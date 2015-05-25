@@ -455,7 +455,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    54,    54,    58,    59,    60,    61
+       0,    54,    54,    58,    60,    61,    62
 };
 #endif
 
@@ -1247,19 +1247,19 @@ yyreduce:
     break;
 
   case 4:
-#line 59 "Parser.y" /* yacc.c:1646  */
+#line 60 "Parser.y" /* yacc.c:1646  */
     { (yyval.expression) = createOperation( eMULTIPLY, (yyvsp[-2].expression), (yyvsp[0].expression) ); }
 #line 1253 "Parser.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 60 "Parser.y" /* yacc.c:1646  */
+#line 61 "Parser.y" /* yacc.c:1646  */
     { (yyval.expression) = (yyvsp[-1].expression); }
 #line 1259 "Parser.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 61 "Parser.y" /* yacc.c:1646  */
+#line 62 "Parser.y" /* yacc.c:1646  */
     { (yyval.expression) = createNumber((yyvsp[0].value)); }
 #line 1265 "Parser.c" /* yacc.c:1646  */
     break;
@@ -1493,5 +1493,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 64 "Parser.y" /* yacc.c:1906  */
+#line 65 "Parser.y" /* yacc.c:1906  */
 
