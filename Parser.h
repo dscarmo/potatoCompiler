@@ -58,9 +58,56 @@ typedef void* yyscan_t;
   {
     TOKEN_PLUS = 258,
     TOKEN_MULTIPLY = 259,
-    TOKEN_LPAREN = 260,
-    TOKEN_RPAREN = 261,
-    TOKEN_NUMBER = 262
+    TOKEN_AND = 260,
+    TOKEN_BREAK = 261,
+    TOKEN_DO = 262,
+    TOKEN_ELSE = 263,
+    TOKEN_ELSEIF = 264,
+    TOKEN_END = 265,
+    TOKEN_FALSE = 266,
+    TOKEN_FOR = 267,
+    TOKEN_FUNCTION = 268,
+    TOKEN_IF = 269,
+    TOKEN_IN = 270,
+    TOKEN_LOCAL = 271,
+    TOKEN_NIL = 272,
+    TOKEN_NOT = 273,
+    TOKEN_OR = 274,
+    TOKEN_REPEAT = 275,
+    TOKEN_RETURN = 276,
+    TOKEN_THEN = 277,
+    TOKEN_TRUE = 278,
+    TOKEN_UNTIL = 279,
+    TOKEN_WHILE = 280,
+    TOKEN_ID = 281,
+    TOKEN_COMMENT = 282,
+    TOKEN_STRING = 283,
+    TOKEN_LPAREN = 284,
+    TOKEN_RPAREN = 285,
+    TOKEN_MINUS = 286,
+    TOKEN_NUMBER = 287,
+    TOKEN_DIV = 288,
+    TOKEN_MOD = 289,
+    TOKEN_HAT = 290,
+    TOKEN_CROSS = 291,
+    TOKEN_EQUAL = 292,
+    TOKEN_AEQUAL = 293,
+    TOKEN_NEQUAL = 294,
+    TOKEN_LEQUAL = 295,
+    TOKEN_GEQUAL = 296,
+    TOKEN_LESSER = 297,
+    TOKEN_GREATER = 298,
+    TOKEN_ASSIGN = 299,
+    TOKEN_LKEY = 300,
+    TOKEN_RKEY = 301,
+    TOKEN_LBOX = 302,
+    TOKEN_RBOX = 303,
+    TOKEN_SEMICOLON = 304,
+    TOKEN_TWOPOINTS = 305,
+    TOKEN_COLON = 306,
+    TOKEN_POINT = 307,
+    TOKEN_DOUBLEPOINT = 308,
+    TOKEN_ETC = 309
   };
 #endif
 
@@ -74,7 +121,7 @@ union YYSTYPE
     int value;
     SExpression *expression;
 
-#line 78 "Parser.h" /* yacc.c:1909  */
+#line 125 "Parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
