@@ -67,7 +67,7 @@ while		{printf("Token: %s Type: WHILE\n", yytext);return TOKEN_WHILE;}
 "."     	{printf("Token: %s Type: POINT\n", yytext);return TOKEN_POINT;}
 ".."		{printf("Token: %s Type: DOUBLEPOINT\n", yytext);return TOKEN_DOUBLEPOINT;}
 "..." 		{printf("Token: %s Type: ETC\n", yytext);return TOKEN_ETC;}
-\n			{ ++line_num; return ENDL;}
+\n			{++line_num;}
 {blank}     ;
 .			{printf("Lexical error! %s not recognized \n", yytext);}
   

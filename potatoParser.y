@@ -75,17 +75,164 @@ void yyerror(const char *s);
 %token TOKEN_DOUBLEPOINT
 %token TOKEN_ETC
 %token ENDL
+%start Input
 
 %%
-//Grammar
+///*//Debug Area
+Input:
+	bloco {printf("programa finalizado \n");}
+	;
 
-//input:
-	//trecho {}
-	//;
+bloco:
+	comando {printf("bloco encontrado \n");} 
+	| comando bloco {printf("bloco encontrado \n");} 
+	;
+
+//Comandos principais e coisas auxiliares
+comando:
+	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n");}
+	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("exp bloco elseif else para comando\n");}
+	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {}
+	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END
+	| TOKEN_FUNCTION nomedafuncao corpodafuncao {}
+	| chamadadefuncao {}
+	;
+elseif:
+	| TOKEN_ELSEIF exp TOKEN_THEN bloco elseif
+	;
+else:
+	| TOKEN_ELSE bloco
+	;
+colonexp:
+	| TOKEN_COLON exp
+	;
+//
+
+//MY FUCKING FUNCTION CALL
+chamadadefuncao:
+	TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("args para chamadadefuncao");}
+	;
+args: 
+	listaexps  {}
+	| TOKEN_STRING {}
+	;
+listaexps:
+	| listaexp
+	;
+listaexp:
+	expcolon exp {}
+	;
+expcolon:
+	| exp TOKEN_COLON expcolon 
+	;
+
+//
+/*Chamada de função
+chamadadefuncao:
+	expprefixo args {}
+	| expprefixo TOKEN_TWOPOINTS TOKEN_ID args {}
+	;
+expprefixo:
+	var {}
+	| chamadadefuncao {}
+	| TOKEN_LPAREN exp TOKEN_RPAREN {}
+	;
+args: 
+	TOKEN_LPAREN listaexps TOKEN_RPAREN {}
+	| TOKEN_STRING {}
+	;
+var:
+	TOKEN_ID {}
+	| expprefixo TOKEN_LBOX exp TOKEN_RBOX {}
+	| expprefixo TOKEN_POINT TOKEN_ID {}
+	|
+	;
+listaexps:
+	| listaexp
+	;
+listaexp:
+	expcolon exp {}
+	;
+expcolon:
+	| exp TOKEN_COLON expcolon
+	;
+ do we really need that? */
+
+
+//Nome da função
+nomedafuncao:
+	TOKEN_ID pointidrec twopointid{}
+	;
+pointidrec:
+	| TOKEN_POINT TOKEN_ID pointidrec
+	;
+twopointid:
+	| TOKEN_TWOPOINTS TOKEN_ID
+	;
+	
+//Corpo da Função
+corpodafuncao:
+	TOKEN_LPAREN listapares TOKEN_RPAREN bloco TOKEN_END {}
+	;
+listapares:
+	| listapar
+	;		
+listapar:
+	listadenomes colonetc {}
+	| TOKEN_ETC
+	;
+colonetc:
+	| TOKEN_COLON TOKEN_ETC
+	;
+listadenomes:
+	TOKEN_ID colonidrec {}
+	;
+colonidrec:
+	| TOKEN_COLON TOKEN_ID colonidrec
+	;
+//
+
+//Expressoes e simbolos
+exp: 
+	TOKEN_NIL {}
+	| TOKEN_FALSE {}
+	| TOKEN_TRUE {}
+	| TOKEN_NUMBER {}
+	| TOKEN_STRING {}
+	| TOKEN_ETC {}
+	| TOKEN_ID {printf("id para exp\n");}
+	| exp opbin exp {printf("operacao para exp\n");}
+	;	
+
+opbin:
+	TOKEN_PLUS {}
+	| TOKEN_MINUS {} 
+	| TOKEN_MULTIPLY {}
+	| TOKEN_DIV {}
+	| TOKEN_HAT {}
+	| TOKEN_MOD {}
+	| TOKEN_DOUBLEPOINT {}
+	| TOKEN_LESSER {}
+	| TOKEN_LEQUAL {}
+	| TOKEN_GREATER {}
+	| TOKEN_GEQUAL {}
+	| TOKEN_EQUAL {printf("equal no opbin!\n");}
+	| TOKEN_NEQUAL {}
+	| TOKEN_AND {}
+	| TOKEN_OR {}
+	;
+//	
+
+	
+///Debug*/
+/*
 
 trecho:
 	comandokey ultimocomandobox {}
 	;
+	
+
+	
 comandokey: 	    
 	|
 	comando semicolonbox comandokey  
@@ -99,15 +246,17 @@ semicolonbox:
 	TOKEN_SEMICOLON
 	;
 
+	
 bloco:
 	trecho {}
 	;
 	
 comando:
-	listavar TOKEN_ASSIGN listaexp {}
+	listavar TOKEN_ASSIGN listaexp {cout << "assignment!";}
+	//TOKEN_ID TOKEN_ASSIGN exp {printf("assign aqui");}
 	| chamadadefuncao {}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {}
-	| TOKEN_IF exp TOKEN_THEN bloco elseifkey elsebox TOKEN_END {printf("Reduziu um IF");}
+	| TOKEN_IF exp TOKEN_THEN bloco  {printf("bloco reconhecido");} elseifkey elsebox TOKEN_END {printf("Reduziu um IF");}
 	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexpbox TOKEN_DO bloco TOKEN_END {}
 	| TOKEN_FUNCTION nomedafuncao corpodafuncao {}
 	;
@@ -243,7 +392,7 @@ opunaria:
 	| TOKEN_NOT {}
 	| TOKEN_CROSS {}
 	;
-
+*/
 %%
 //Functions
 
@@ -260,13 +409,13 @@ int main(int, char**) {
 
 	// parse through the input until there is no more:
 	do {
-		yyparse();
+		int result = yyparse();
 	} while (!feof(yyin));
 	
 }
 
 void yyerror(const char *s) {
-	cout << "NOOOOOOoooo!1 parse error on line" << line_num << "  Message: " << s << endl;
+	cout << "NOOOO! parse error on line" << line_num << "  Message: " << s << endl;
 	// might as well halt now:
 	exit(-1);
 }
