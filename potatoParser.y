@@ -113,50 +113,15 @@ chamadadefuncao:
 	TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("args para chamadadefuncao");}
 	;
 args: 
-	listaexps  {}
+	| listaexp  {}
 	| TOKEN_STRING {}
-	;
-listaexps:
-	| listaexp
-	;
-listaexp:
-	expcolon exp {}
-	;
-expcolon:
-	| exp TOKEN_COLON expcolon 
 	;
 
-//
-/*Chamada de função
-chamadadefuncao:
-	expprefixo args {}
-	| expprefixo TOKEN_TWOPOINTS TOKEN_ID args {}
-	;
-expprefixo:
-	var {}
-	| chamadadefuncao {}
-	| TOKEN_LPAREN exp TOKEN_RPAREN {}
-	;
-args: 
-	TOKEN_LPAREN listaexps TOKEN_RPAREN {}
-	| TOKEN_STRING {}
-	;
-var:
-	TOKEN_ID {}
-	| expprefixo TOKEN_LBOX exp TOKEN_RBOX {}
-	| expprefixo TOKEN_POINT TOKEN_ID {}
-	|
-	;
-listaexps:
-	| listaexp
-	;
 listaexp:
-	expcolon exp {}
+	| exp
+	| exp TOKEN_COLON listaexp
 	;
-expcolon:
-	| exp TOKEN_COLON expcolon
-	;
- do we really need that? */
+
 
 
 //Nome da função
@@ -397,17 +362,16 @@ opunaria:
 //Functions
 
 int main(int, char**) {
-	// open a file handle to a particular file:
+	// usar arquivo como entrada
 	FILE *myfile = fopen("in.potato", "r");
-	// make sure it's valid:
 	if (!myfile) {
-		cout << "I can't open a .potato file!" << endl;
+		cout << "Cade o .potato file D:" << endl;
 		return -1;
 	}
-	// set flex to read from it instead of defaulting to STDIN:
+	// yyin = arquivo
 	yyin = myfile;
 
-	// parse through the input until there is no more:
+	// parse
 	do {
 		int result = yyparse();
 	} while (!feof(yyin));
@@ -415,7 +379,7 @@ int main(int, char**) {
 }
 
 void yyerror(const char *s) {
-	cout << "NOOOO! parse error on line" << line_num << "  Message: " << s << endl;
+	cout << "NOOOO! parse error na linha " << line_num << "  Message: " << s << endl;
 	// might as well halt now:
 	exit(-1);
 }
