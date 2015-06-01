@@ -1,2 +1,10 @@
-a = b
-c = d
+function potato (a, b, c, d)
+	if a > b then
+		while a > b do
+			a = b
+			c = d
+		end
+	end
+end
+
+potato(1, 2, 3, 4)

@@ -28,14 +28,17 @@ no *createNode (const char *type, no *down, no *next){
     return n;
 }
 
+
 void printAst(no *n){
 	if 	(n == NULL){
 		return;
 	} else {
 		printf("%s",n->type);
-		printf("-->");
+		if (n->next != NULL)
+			printf("-->");
 		printAst(n->next);
-		printf("|\n");
+		if (n->down != NULL)
+			printf("\n|\n");
 		printAst(n->down);
 		
 	}
