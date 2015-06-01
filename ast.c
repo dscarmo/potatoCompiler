@@ -1,4 +1,5 @@
 #include "ast.h"
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -17,11 +18,28 @@ static no *alocarNo(){
     return n;
 }
 
-no *createNode (char *type, no *down, no *next){
+no *createNode (const char *type, no *down, no *next){
 	no *n = alocarNo();
 	
-	n->type = type;
+    n->type = type;
     n->down = down;
     n->next = next;
+    
+    return n;
+}
+
+void printAst(no *n){
+	if 	(n == NULL){
+		return;
+	} else {
+		printf("%s",n->type);
+		printf("-->");
+		printAst(n->next);
+		printf("|\n");
+		printAst(n->down);
+		
+	}
+	
+	
 }
 

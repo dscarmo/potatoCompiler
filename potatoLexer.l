@@ -1,6 +1,8 @@
 %{
 #include <iostream>
+#include "ast.h"
 #include "potatoParser.tab.h"
+
 using namespace std;
 #define YY_DECL extern "C" int yylex()
 int line_num = 1;

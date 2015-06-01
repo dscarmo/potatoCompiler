@@ -1,6 +1,7 @@
 %{
 #include <cstdio>
 #include <iostream>
+#include "ast.h"
 using namespace std;
 
 // stuff from flex that bison needs to know about:
@@ -8,13 +9,15 @@ extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" FILE *yyin;
 extern int line_num;
- 
+no *ast;
 void yyerror(const char *s);
 %}
 
 %union {
 	int ival;
 	char *sval;
+	no *ast;
+	
 	//float fval;
 }
 
@@ -74,26 +77,28 @@ void yyerror(const char *s);
 %token TOKEN_POINT
 %token TOKEN_DOUBLEPOINT
 %token TOKEN_ETC
-%token ENDL
 %start Input
+
+%type <ast> bloco comando
 
 %%
 ///*//Debug Area
+//prototype: createNode (char *type, no *down, no *next);
 Input:
-	bloco {printf("programa finalizado \n");}
+	bloco {printf("programa finalizado \n"); ast = $1;}
 	;
 
 bloco:
-	comando {printf("bloco encontrado \n");} 
-	| comando bloco {printf("bloco encontrado \n");} 
+	comando {printf("bloco de um comando encontrado \n"); $$ = createNode("bloco", $1, NULL);} 
+	| comando bloco {printf("varios comandos encontrados \n"); $$ = createNode("bloco", $1, $2); } 
 	;
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n");}
+	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n"); $$ = createNode("assign", NULL, NULL);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("exp bloco elseif else para comando\n");}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {}
-	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END
+	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {}
 	| TOKEN_FUNCTION nomedafuncao corpodafuncao {}
 	| chamadadefuncao {}
 	;
@@ -188,180 +193,20 @@ opbin:
 	;
 //	
 
-	
-///Debug*/
-/*
-
-trecho:
-	comandokey ultimocomandobox {}
-	;
-	
-
-	
-comandokey: 	    
-	|
-	comando semicolonbox comandokey  
-	;
-ultimocomandobox:
-	|
-	ultimocomando semicolonbox
-	;
-semicolonbox:
-	|
-	TOKEN_SEMICOLON
-	;
-
-	
-bloco:
-	trecho {}
-	;
-	
-comando:
-	listavar TOKEN_ASSIGN listaexp {cout << "assignment!";}
-	//TOKEN_ID TOKEN_ASSIGN exp {printf("assign aqui");}
-	| chamadadefuncao {}
-	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {}
-	| TOKEN_IF exp TOKEN_THEN bloco  {printf("bloco reconhecido");} elseifkey elsebox TOKEN_END {printf("Reduziu um IF");}
-	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexpbox TOKEN_DO bloco TOKEN_END {}
-	| TOKEN_FUNCTION nomedafuncao corpodafuncao {}
-	;
-elseifkey:
-	| TOKEN_ELSEIF exp TOKEN_THEN bloco elseifkey
-	;
-elsebox:
-	| TOKEN_ELSE bloco
-	;
-colonexpbox:
-	|
-	TOKEN_COLON exp
-	;
-
-
-ultimocomando:
-	TOKEN_RETURN listaexpbox {} 
-	| TOKEN_BREAK {}
-	;	
-listaexpbox:
-	| listaexp
-	;
-
-		
-nomedafuncao:
-	TOKEN_ID pointidkey twopointidbox{}
-	;
-pointidkey:
-	| TOKEN_POINT TOKEN_ID pointidkey
-	;
-twopointidbox:
-	| TOKEN_TWOPOINTS TOKEN_ID
-	;
-	
-listavar:
-	var colonvarkey {}
-	;
-colonvarkey:
-	| TOKEN_COLON var colonvarkey
-
-var:
-	TOKEN_ID {}
-	| expprefixo TOKEN_LBOX exp TOKEN_RBOX {}
-	| expprefixo TOKEN_POINT TOKEN_ID {}
-	|
-	;
-	
-listadenomes:
-	TOKEN_ID colonidkey {}
-	;
-colonidkey:
-	| TOKEN_COLON TOKEN_ID colonidkey
-	;
-
-
-listaexp:
-	expcolonkey exp {}
-	;
-expcolonkey:
-	| exp TOKEN_COLON expcolonkey
-	;
-	
-exp: 
-	TOKEN_NIL {}
-	| TOKEN_FALSE {}
-	| TOKEN_TRUE {}
-	| TOKEN_NUMBER {}
-	| TOKEN_STRING {}
-	| TOKEN_ETC {}
-	| funcao {}
-	| expprefixo {}
-	| exp opbin exp {}
-	| opunaria exp {}
-	;
-	
-expprefixo:
-	var {}
-	| chamadadefuncao {}
-	| TOKEN_LPAREN exp TOKEN_RPAREN {}
-	;
-
-chamadadefuncao:
-	expprefixo args {}
-	| expprefixo TOKEN_TWOPOINTS TOKEN_ID args {}
-	;
-	
-args: 
-	TOKEN_LPAREN listaexpbox TOKEN_RPAREN {}
-	| TOKEN_STRING {}
-	;
-	
-funcao:
-	TOKEN_FUNCTION corpodafuncao {}
-	;
-	
-corpodafuncao:
-	TOKEN_LPAREN listaparbox TOKEN_RPAREN bloco TOKEN_END {}
-	;
-listaparbox:
-	| listapar
-	;
-
-listapar:
-	listadenomes colonetcbox {}
-	| TOKEN_ETC
-	;
-colonetcbox:
-	| TOKEN_COLON TOKEN_ETC
-	;
-
-
-	
-opbin:
-	TOKEN_PLUS {}
-	| TOKEN_MINUS {} 
-	| TOKEN_MULTIPLY {}
-	| TOKEN_DIV {}
-	| TOKEN_HAT {}
-	| TOKEN_MOD {}
-	| TOKEN_DOUBLEPOINT {}
-	| TOKEN_LESSER {}
-	| TOKEN_LEQUAL {}
-	| TOKEN_GREATER {}
-	| TOKEN_GEQUAL {}
-	| TOKEN_EQUAL {}
-	| TOKEN_NEQUAL {}
-	| TOKEN_AND {}
-	| TOKEN_OR {}
-	;
-	
-opunaria:
-	TOKEN_MINUS {}
-	| TOKEN_NOT {}
-	| TOKEN_CROSS {}
-	;
-*/
 %%
 //Functions
+/*void astTest(){
+	no *filho1 = createNode("filho", NULL, NULL);
+	no *brother1 = createNode("brother", NULL, NULL);
+	no *initial = createNode("initial", filho1, brother1);
+	printf("criou os nos");
+	printAst(initial);
+}*/
+
 
 int main(int, char**) {
+	
+	
 	// usar arquivo como entrada
 	FILE *myfile = fopen("in.potato", "r");
 	if (!myfile) {
@@ -373,9 +218,11 @@ int main(int, char**) {
 
 	// parse
 	do {
-		int result = yyparse();
+		yyparse();
 	} while (!feof(yyin));
 	
+	printf("Testando AST... \n");
+	printAst(ast);
 }
 
 void yyerror(const char *s) {
