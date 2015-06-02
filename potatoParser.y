@@ -15,7 +15,7 @@ void yyerror(const char *s);
 
 %union {
 	int ival;
-	char *sval;
+	const char *sval;
 	no *ast;
 	
 	//float fval;
@@ -43,11 +43,11 @@ void yyerror(const char *s);
 %token TOKEN_TRUE
 %token TOKEN_UNTIL
 %token TOKEN_WHILE
-%token TOKEN_ID
 
 //Valued Terminals
 %token <sval> TOKEN_STRING
 %token <ival> TOKEN_NUMBER
+%token <sval> TOKEN_ID
 
 //Operator/pontuation Terminals
 %token TOKEN_LPAREN
@@ -88,6 +88,7 @@ void yyerror(const char *s);
 %type <ast> args
 %type <ast> listaexp
 %type <ast> listapares
+%type <sval> opbin
 
 %%
 ///*//Debug Area
@@ -103,7 +104,7 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n"); $$ = createNode("assign", createNode("id", NULL, NULL), $3);}
+	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n"); $$ = createNode("assign", createId($1), $3);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
 	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {$$ = createNode("for", $9, $4);}
@@ -123,23 +124,23 @@ colonexp:
 
 //MY FUCKING FUNCTION CALL
 chamadadefuncao:
-	TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("args para chamadadefuncao"); $$ = createNode("chamadadefuncao", createNode("id", NULL, NULL), $3);}
+	TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("args para chamadadefuncao"); $$ = createNode("chamadadefuncao", createId($1), $3);}
 	;
-args: 
-	| listaexp  {$$ = createNode("args", $1, NULL);}
-	| TOKEN_STRING {$$ = createNode("stringarg", NULL, NULL);}
+args: {}
+	| listaexp  {$$ = createNode("expargs", $1, NULL);}
+	| TOKEN_STRING {$$ = createString($1);}
 	;
 
-listaexp:
-	| exp {$$ = createNode("umaexp", NULL, NULL);}
-	| exp TOKEN_COLON listaexp {$$ = createNode("variasexp", NULL, NULL);}
+listaexp: {}
+	| exp {$$ = createNode("umaexp", $1, NULL);}
+	| exp TOKEN_COLON listaexp {$$ = createNode("variasexp", $1, $3);}
 	;
 
 
 
 //Nome da função
 nomedafuncao:
-	TOKEN_ID pointidrec twopointid{$$ = createNode("nomedafuncao", createNode("id", NULL, NULL), NULL);}
+	TOKEN_ID pointidrec twopointid{$$ = createNode("nomedafuncao", createId($1), NULL);}
 	;
 pointidrec:
 	| TOKEN_POINT TOKEN_ID pointidrec
@@ -175,29 +176,29 @@ exp:
 	TOKEN_NIL {$$ = createNode("null", NULL, NULL);}
 	| TOKEN_FALSE {$$ = createNode("false", NULL, NULL);}
 	| TOKEN_TRUE {$$ = createNode("true", NULL, NULL);}
-	| TOKEN_NUMBER {$$ = createNode("number", NULL, NULL);}
-	| TOKEN_STRING {$$ = createNode("string", NULL, NULL);}
+	| TOKEN_NUMBER {$$ = createNumber($1);}
+	| TOKEN_STRING {$$ = createString($1);}
 	| TOKEN_ETC {$$ = createNode("etc", NULL, NULL);}
-	| TOKEN_ID {printf("id para exp\n"); $$ = createNode("id", NULL, NULL);}
-	| exp opbin exp {printf("operacao para exp\n"); $$ = createNode("op", $1, $3);}
+	| TOKEN_ID {$$ = createString($1);}
+	| exp opbin exp {printf("operacao para exp\n"); $$ = createNode($2, $1, $3);}
 	;	
 
 opbin:
-	TOKEN_PLUS {}
-	| TOKEN_MINUS {} 
-	| TOKEN_MULTIPLY {}
-	| TOKEN_DIV {}
-	| TOKEN_HAT {}
-	| TOKEN_MOD {}
-	| TOKEN_DOUBLEPOINT {}
-	| TOKEN_LESSER {}
-	| TOKEN_LEQUAL {}
-	| TOKEN_GREATER {}
-	| TOKEN_GEQUAL {}
-	| TOKEN_EQUAL {printf("equal no opbin!\n");}
-	| TOKEN_NEQUAL {}
-	| TOKEN_AND {}
-	| TOKEN_OR {}
+	TOKEN_PLUS {$$ = "+";}
+	| TOKEN_MINUS {$$ = "-";} 
+	| TOKEN_MULTIPLY {$$ = "*";}
+	| TOKEN_DIV {$$ = "/";}
+	| TOKEN_HAT {$$ = "^";}
+	| TOKEN_MOD {$$ = "%";}
+	| TOKEN_DOUBLEPOINT {$$ = "..";}
+	| TOKEN_LESSER {$$ = "<";}
+	| TOKEN_LEQUAL {$$ = "<=";}
+	| TOKEN_GREATER {$$ = ">";}
+	| TOKEN_GEQUAL {$$ = ">=";}
+	| TOKEN_EQUAL {printf("equal no opbin!\n"); $$ = "==";}
+	| TOKEN_NEQUAL {$$ = "<=";}
+	| TOKEN_AND {$$ = "and";}
+	| TOKEN_OR {$$ = "or";}
 	;
 //	
 
@@ -232,6 +233,9 @@ int main(int, char**) {
 	printf("Testando AST... \n");
 	printAst(ast);
 	printf("\n");
+	//printf("Testando print da net");
+	//printPaths (ast);
+	//Horrivel! Deixa pa la. 
 }
 
 void yyerror(const char *s) {

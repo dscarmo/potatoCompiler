@@ -1,10 +1,11 @@
-function potato (a, b, c, d)
-	if a > b then
-		while a > b do
-			a = b
-			c = d
-		end
+function teste (a, b)
+	if 1 == 1 then
+		print("teste")
+		a = 1 + 2
+		b = 3/2
 	end
 end
 
-potato(1, 2, 3, 4)
+teste(2, 1)
+
+
