@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <iostream>
 #include "ast.h"
+#include "potatoCodeGen.h"
+
 using namespace std;
 
 // stuff from flex that bison needs to know about:
@@ -17,8 +19,6 @@ void yyerror(const char *s);
 	int ival;
 	const char *sval;
 	no *ast;
-	
-	//float fval;
 }
 
 //Keywords
@@ -233,6 +233,7 @@ int main(int, char**) {
 	printf("Testando AST... \n");
 	printAst(ast);
 	printf("\n");
+	codeGen(ast);
 	//printf("Testando print da net");
 	//printPaths (ast);
 	//Horrivel! Deixa pa la. 

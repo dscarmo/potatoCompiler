@@ -1,6 +1,9 @@
 function teste (a, b)
 	if 1 == 1 then
 		print("teste")
+		while true do
+			c = 3 + 5 - 3
+		end
 		a = 1 + 2
 		b = 3/2
 	end
