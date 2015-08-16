@@ -1,9 +1,12 @@
 #ifndef __AST_H__
 #define __AST_H__
 
+#define NUMBER 1
+
 typedef struct tno {
 	const char *type;
 	int value;
+	int cGenType;
 	const char *svalue;
 	struct tno *down;
 	struct tno *next; 

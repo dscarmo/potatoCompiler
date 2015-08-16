@@ -35,6 +35,7 @@ no *createNumber(int value){
 	no *n = alocarNo();
 	n->value = value;
     n->type = "number";
+    n->cGenType = NUMBER;
     n->down = NULL;
     n->next = NULL;
     
@@ -66,24 +67,19 @@ void printAst(no *n){
 	if 	(n == NULL){
 		return;
 	} else {
-		printf("%s \n",n->type);
-		if (n->type == "number")
-			printf("value: %d \n", n->value);
-			
-		//Print de strings bugando
-		//if (n->type == "string")
-		//	printf("string: %s \n", n->svalue);
-		//if (n->type == "id")
-		//	printf("id: %s \n", n->svalue);
-		//if (n->next != NULL)
-			//printf("-->");
-		
-		printAst(n->next);
-		
-		//if (n->down != NULL)
-			//printf("\n|\n");
-		
 		printAst(n->down);
+				
+		printf("%s", n->type);
+						
+		//if (!strcmp(n->type, "id"))
+		//	printf(", name: %s \n", n->svalue); //bugando
+		//else 
+		if (!strcmp(n->type, "number"))
+			printf(" value: %d \n", n->value);
+		else 
+			printf("\n");
+					
+		printAst(n->next);
 	}	
 }
 

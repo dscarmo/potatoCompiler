@@ -179,7 +179,7 @@ exp:
 	| TOKEN_NUMBER {$$ = createNumber($1);}
 	| TOKEN_STRING {$$ = createString($1);}
 	| TOKEN_ETC {$$ = createNode("etc", NULL, NULL);}
-	| TOKEN_ID {$$ = createString($1);}
+	| TOKEN_ID {$$ = createId($1);}
 	| exp opbin exp {printf("operacao para exp\n"); $$ = createNode($2, $1, $3);}
 	;	
 
@@ -203,25 +203,22 @@ opbin:
 //	
 
 %%
-//Functions
-/*void astTest(){
-	no *filho1 = createNode("filho", NULL, NULL);
-	no *brother1 = createNode("brother", NULL, NULL);
-	no *initial = createNode("initial", filho1, brother1);
-	printf("criou os nos");
-	printAst(initial);
-}*/
 
+void separatingPhases(const char* string){
+	cout << "\n\n\n /////////////////////////////\n" << "Executando fase de " << string << "\n////////////////////////////////\n\n\n";
+}
 
 int main(int, char**) {
 	
-	
+	separatingPhases("Parser e Léxico");
+		
 	// usar arquivo como entrada
 	FILE *myfile = fopen("in.potato", "r");
 	if (!myfile) {
 		cout << "Cade o .potato file D:" << endl;
 		return -1;
 	}
+	
 	// yyin = arquivo
 	yyin = myfile;
 
@@ -230,18 +227,19 @@ int main(int, char**) {
 		yyparse();
 	} while (!feof(yyin));
 	
-	printf("Testando AST... \n");
+	separatingPhases("Representação Intermediária - Absctract Syntax Tree:");
 	printAst(ast);
 	printf("\n");
+	
+	separatingPhases("Representação Intermediária - Parrot Intermediate Representation (PIR):");
+	printf(".sub main\n");
 	codeGen(ast);
-	//printf("Testando print da net");
-	//printPaths (ast);
-	//Horrivel! Deixa pa la. 
+	printf(".end\n");
 }
+
 
 void yyerror(const char *s) {
 	cout << "NOOOO! parse error na linha " << line_num << "  Message: " << s << endl;
-	// might as well halt now:
 	exit(-1);
 }
 
