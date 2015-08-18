@@ -12,7 +12,7 @@ static no *alocarNo(){
     }
  
  	n->value = 0;
- 	n->svalue = NULL;
+ 	n->svalue = "default string";
     n->type = NULL;
     n->down = NULL;
     n->next = NULL;

@@ -104,12 +104,12 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt para comando\n"); $$ = createNode("assign", createId($1), $3);}
+	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando\n"); $$ = createNode("assign", createId($1), $3);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
 	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {$$ = createNode("for", $9, $4);}
 	| TOKEN_FUNCTION nomedafuncao corpodafuncao {$$ = createNode("function", $3, $2);}
-	| chamadadefuncao {$$ = createNode("chamadadefuncao", $1, NULL);}
+	| TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
 	;
 elseif:
 	| TOKEN_ELSEIF exp TOKEN_THEN bloco elseif
@@ -123,12 +123,12 @@ colonexp:
 //
 
 //MY FUCKING FUNCTION CALL
-chamadadefuncao:
-	TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("args para chamadadefuncao"); $$ = createNode("chamadadefuncao", createId($1), $3);}
-	;
+//chamadadefuncao:
+	
+	//;
 args: {}
 	| listaexp  {$$ = createNode("expargs", $1, NULL);}
-	| TOKEN_STRING {$$ = createString($1);}
+	| TOKEN_STRING {printf("%s\n", $1); $$ = createString($1);}
 	;
 
 listaexp: {}
@@ -180,7 +180,7 @@ exp:
 	| TOKEN_STRING {$$ = createString($1);}
 	| TOKEN_ETC {$$ = createNode("etc", NULL, NULL);}
 	| TOKEN_ID {$$ = createId($1);}
-	| exp opbin exp {printf("operacao para exp\n"); $$ = createNode($2, $1, $3);}
+	| exp opbin exp {printf("operacao %s para exp\n", $2); $$ = createNode($2, $1, $3);}
 	;	
 
 opbin:
@@ -227,7 +227,7 @@ int main(int, char**) {
 		yyparse();
 	} while (!feof(yyin));
 	
-	separatingPhases("Representação Intermediária - Absctract Syntax Tree:");
+	separatingPhases("Representação Intermediária - Absctract Syntax Tree (notação infixa):");
 	printAst(ast);
 	printf("\n");
 	
