@@ -12,7 +12,7 @@ static no *alocarNo(){
     }
  
  	n->value = 0;
- 	n->svalue = "default string";
+ 	n->svalue = NULL;
     n->type = NULL;
     n->down = NULL;
     n->next = NULL;
@@ -71,9 +71,9 @@ void printAst(no *n){
 				
 		printf("%s", n->type);
 						
-		//if (!strcmp(n->type, "id"))
-		//	printf(", name: %s \n", n->svalue); //bugando
-		//else 
+		if (!strcmp(n->type, "id"))
+			printf(", name: %s \n", n->svalue); //bugando
+		else 
 		if (!strcmp(n->type, "number"))
 			printf(" value: %d \n", n->value);
 		else 

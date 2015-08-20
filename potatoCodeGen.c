@@ -31,21 +31,43 @@ int checkConstruction(no *ast, const char *stype, const char *sdown, const char 
 }
 
 void getExpression (no *ast){
-	printf("%d ", (ast -> down) -> value);
-	printf("%s ", ast->type);
-	printf("%d \n ", (ast-> next) -> value);
+	///*
+	if ((ast->down)->svalue != NULL)
+		printf(" %s", (ast-> down)->svalue);
+	else
+		printf(" %d", (ast-> down)->value);
+	
+	printf(" %s", ast->type);
+	
+	if ((ast->next)->svalue != NULL)
+		printf(" %s\n", (ast-> next)->svalue);
+	else	
+		printf(" %d\n", (ast-> down)->value);
 }
 
 void generateCode (no *ast){
+	no *dummy = NULL;
+	
 	//Assign
 	if (!strcmp(ast->type, "assign")){
 		variableNumber++;
-		printf(".local num variable%d\n", variableNumber);
-		printf("variable%d =", variableNumber);
+		printf(".local num ");
+		printf("%s\n", (ast->down) -> svalue);
+		printf("%s =", (ast->down) -> svalue);
 		if (!strcmp((ast->next)->type, "number"))
 			printf(" %d\n", (ast -> next)-> value);
+		else if (!strcmp((ast->next)->type, "id"))
+			printf(" %s\n", (ast -> next)-> svalue);
 		else getExpression(ast->next);
 	}
+	
+	//Print generation
+	if (!strcmp(ast->type, "chamada de funcao")){
+		printf("%s", (ast->down)->svalue);
+		if ((ast->next)->svalue != NULL)
+			printf(" %s\n", (ast->next)->svalue);
+	}
+	
 	
 	//If generation 
 	if (!strcmp(ast->type, "if")){
@@ -55,7 +77,7 @@ void generateCode (no *ast){
 		else if (checkConstruction(ast, "if", "bloco", "false"))
 			printf("0 ");
 		else{ 
-			generateCode(ast -> next);		
+			getExpression(ast -> next);		
 		}
 		labelNumber++;
 		printf("goto label%d\n", labelNumber);

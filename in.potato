@@ -1,5 +1,1 @@
-a = 1 + 1
-a = 1
-if true then 
-	b = 2
-end
+print(a)

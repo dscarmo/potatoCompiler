@@ -84,7 +84,7 @@ void yyerror(const char *s);
 %type <ast> exp
 %type <ast> nomedafuncao 
 %type <ast> corpodafuncao
-%type <ast> chamadadefuncao
+//%type <ast> chamadadefuncao
 %type <ast> args
 %type <ast> listaexp
 %type <ast> listapares
@@ -104,7 +104,7 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando\n"); $$ = createNode("assign", createId($1), $3);}
+	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
 	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {$$ = createNode("for", $9, $4);}
