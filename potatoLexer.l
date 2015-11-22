@@ -36,6 +36,7 @@ then		{printf("Token: %s Type: THEN\n", yytext);return TOKEN_THEN;}
 true        {printf("Token: %s Type: TRUE\n", yytext);return TOKEN_TRUE;}
 until	 	{printf("Token: %s Type: UNTIL\n", yytext);return TOKEN_UNTIL;}
 while		{printf("Token: %s Type: WHILE\n", yytext);return TOKEN_WHILE;}
+var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 
 {ID}   		{printf("Token: %s Type: ID \n", yytext); yylval.sval = strdup(yytext); return TOKEN_ID;}
 {number} 	{printf("Token: %s Type: NUMBER \n", yytext); yylval.ival = atoi(yytext); return TOKEN_NUMBER; }

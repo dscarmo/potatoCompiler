@@ -43,6 +43,7 @@ void yyerror(const char *s);
 %token TOKEN_TRUE
 %token TOKEN_UNTIL
 %token TOKEN_WHILE
+%token TOKEN_VAR
 
 //Valued Terminals
 %token <sval> TOKEN_STRING
@@ -82,12 +83,8 @@ void yyerror(const char *s);
 %type <ast> bloco 
 %type <ast> comando 
 %type <ast> exp
-%type <ast> nomedafuncao 
-%type <ast> corpodafuncao
 //%type <ast> chamadadefuncao
-%type <ast> args
 %type <ast> listaexp
-%type <ast> listapares
 %type <sval> opbin
 
 %%
@@ -104,12 +101,12 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);}
+	TOKEN_VAR TOKEN_ID{printf("assignemt de id para comando %s\n", $2); $$ = createNode("assign", createId($2), NULL);}
+	| TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
 	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {$$ = createNode("for", $9, $4);}
-	| TOKEN_FUNCTION nomedafuncao corpodafuncao {$$ = createNode("function", $3, $2);}
-	| TOKEN_ID TOKEN_LPAREN args TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
+	| TOKEN_ID TOKEN_LPAREN listaexp TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
 	;
 elseif:
 	| TOKEN_ELSEIF exp TOKEN_THEN bloco elseif
@@ -123,53 +120,15 @@ colonexp:
 //
 
 //MY FUCKING FUNCTION CALL
-//chamadadefuncao:
+//chamadadefuncao:	
 	
-	//;
-args: {}
-	| listaexp  {$$ = createNode("expargs", $1, NULL);}
-	| TOKEN_STRING {printf("%s\n", $1); $$ = createString($1);}
-	;
+	
 
 listaexp: {}
 	| exp {$$ = createNode("umaexp", $1, NULL);}
 	| exp TOKEN_COLON listaexp {$$ = createNode("variasexp", $1, $3);}
 	;
 
-
-
-//Nome da função
-nomedafuncao:
-	TOKEN_ID pointidrec twopointid{$$ = createNode("nomedafuncao", createId($1), NULL);}
-	;
-pointidrec:
-	| TOKEN_POINT TOKEN_ID pointidrec
-	;
-twopointid:
-	| TOKEN_TWOPOINTS TOKEN_ID
-	;
-	
-//Corpo da Função
-corpodafuncao:
-	TOKEN_LPAREN listapares TOKEN_RPAREN bloco TOKEN_END {$$ = createNode("corpodafuncao", $4, $2);}
-	;
-listapares: {$$ = createNode("semargs", NULL, NULL);}
-	| listapar {$$ = createNode("listadeargs", NULL, NULL);}
-	;		
-listapar:
-	listadenomes colonetc {}
-	| TOKEN_ETC
-	;
-colonetc:
-	| TOKEN_COLON TOKEN_ETC
-	;
-listadenomes:
-	TOKEN_ID colonidrec {}
-	;
-colonidrec:
-	| TOKEN_COLON TOKEN_ID colonidrec
-	;
-//
 
 //Expressoes e simbolos
 exp: 
@@ -231,10 +190,14 @@ int main(int, char**) {
 	printAst(ast);
 	printf("\n");
 	
-	separatingPhases("Representação Intermediária - Parrot Intermediate Representation (PIR):");
-	printf(".sub main\n");
+	separatingPhases("gerancao do  MIPS:");
+	printf(".text\n");
+	printf(".globl main\n\n");
+	printf("main:\n\n");
 	codeGen(ast);
-	printf(".end\n");
+	printf("li $v0, 10\n");  
+  	printf("syscall\n\n"); 
+	
 }
 
 
