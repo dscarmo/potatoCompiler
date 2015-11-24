@@ -6,9 +6,7 @@
 
 int variableNumber = 0;
 int labelNumber = 0;
-int canPrint=0;
-int canAssign=0;
-const char* varia;
+
 
 void codeGen(no *ast){
 	
@@ -21,6 +19,33 @@ void codeGen(no *ast){
 				
 		codeGen(ast->next);
 		
+	}
+}
+
+
+
+void varGen(no *ast){
+	
+	if 	(ast == NULL){
+		return;
+	} else {
+		varGen(ast->down);
+	
+		generateVar(ast);
+				
+		varGen(ast->next);
+		
+	}
+}
+
+void generateVar(no *ast){
+	if (!strcmp(ast->type, "criavar")){
+		if (!ast->next)		 
+			printf ("%s: .word  0\n", (ast->down)->svalue);
+		else{	
+			printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next)->value);
+		}	
+
 	}
 }
 
@@ -48,15 +73,68 @@ void getExpression (no *ast){
 		printf(" %d\n", (ast-> down)->value);
 }
 
+void callExpression(no* ast){
+	if (!strcmp(ast->type, "+")){
+		printf("li $a0, %d\n",(ast->down)->value);
+  		printf("sw $a0, 0($sp)\n");
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		printf("li $a0, %d\n",(ast->next)->value);
+  		printf("lw $t1, 4($sp)\n\n");
+  
+  		printf("add $a0, $a0, $t1\n\n");
+  
+  		printf("addiu $sp, $sp, 4\n\n");
+		
+		
+	}
+	if (!strcmp(ast->type, "-")){
+		printf("li $a0, %d\n",(ast->down)->value);
+  		printf("sw $a0, 0($sp)\n");
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		printf("li $a0, %d\n",(ast->next)->value);
+  		printf("lw $t1, 4($sp)\n\n");
+  
+  		printf("sub $a0, $a0, $t1\n\n");
+  
+  		printf("addiu $sp, $sp, 4\n\n");
+		
+		
+	}
+	if (!strcmp(ast->type, "*")){
+		printf("li $a0, %d\n",(ast->down)->value);
+  		printf("sw $a0, 0($sp)\n");
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		printf("li $a0, %d\n",(ast->next)->value);
+  		printf("lw $t1, 4($sp)\n\n");
+  
+  		printf("mul $a0, $a0, $t1\n\n");
+  
+  		printf("addiu $sp, $sp, 4\n\n");
+		
+	}
+	if (!strcmp(ast->type, "/")){
+		printf("li $a0, %d\n",(ast->down)->value);
+  		printf("sw $a0, 0($sp)\n");
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		printf("li $a0, %d\n",(ast->next)->value);
+  		printf("lw $t1, 4($sp)\n\n");
+  
+  		printf("mul $a0, $a0, $t1\n\n");
+  
+  		printf("addiu $sp, $sp, 4\n\n");
+		
+	}
+}
+
 void callPrint(){
 	printf("li $v0, 1\n");
   	printf("syscall\n\n");
 }
 
-void callAssign(){
-	printf("sw $a0, %s\n\n",varia);
-	printf("lw $a0, %s\n\n",varia);
-}
 
 void generateCode (no *ast){
 	no *dummy = NULL;
@@ -81,9 +159,10 @@ void generateCode (no *ast){
 			printf("sw $t0, %s\n\n",(ast->down) -> svalue);			
 			//printf(" %s\n", (ast -> next)-> svalue);
 		}
-		else{
-		 	varia=(ast->down) -> svalue;
-			canAssign=1;
+		else{	
+			callExpression(ast -> next);
+			printf("sw $a0, %s\n\n",(ast->down) -> svalue);
+			printf("lw $a0, %s\n\n",(ast->down) -> svalue);
 		 	//getExpression(ast->next);
 		}
 	}
@@ -91,98 +170,25 @@ void generateCode (no *ast){
 	//Print generation
 	if (!strcmp(ast->type, "chamada de funcao")){
 		if (!strcmp((ast->down)->svalue, "print")){
-			canPrint=1;
+			if (!strcmp((ast->next->down)->type, "id")){
+				//printf(" %s\n", (ast -> next->down)-> svalue);
+				callPrint();
+			}
+			else if (!strcmp((ast->next->down)->type, "number")){
+				//printf(" %d\n", (ast -> next->down)-> value);
+				printf("li $a0, %d\n",(ast -> next->down)-> value);
+  				printf("sw $a0, 0($sp)\n\n");
+				callPrint();
+			}
+			else{
+				callExpression(ast -> next ->down);
+				callPrint();
+			}
 		}
-		if (!strcmp((ast->next->down)->type, "id")){
-			//printf(" %s\n", (ast -> next->down)-> svalue);
-			callPrint();
-		}
-		//printf("%s\n", (ast->down)->svalue);
-		//if ((ast->next)->svalue != NULL){
-			//getExpression(ast->next);
-			//printf(" %s\n", (ast->next)->svalue);
-			
-		//}
-	}
 
-	//Calculo Generation
-	if (!strcmp(ast->type, "+")){
-		printf("li $a0, %d\n",(ast->down)->value);
-  		printf("sw $a0, 0($sp)\n");
-  		printf("addiu $sp, $sp, -4\n\n");
-
-  		printf("li $a0, %d\n",(ast->next)->value);
-  		printf("lw $t1, 4($sp)\n\n");
-  
-  		printf("add $a0, $a0, $t1\n\n");
-  
-  		printf("addiu $sp, $sp, 4\n\n");
-		if (canAssign == 1){
-			callAssign();			
-		}		
-		if (canPrint == 1){
-			callPrint();
-			canPrint=0;
-		}
-	}
-	if (!strcmp(ast->type, "-")){
-		printf("li $a0, %d\n",(ast->down)->value);
-  		printf("sw $a0, 0($sp)\n");
-  		printf("addiu $sp, $sp, -4\n\n");
-
-  		printf("li $a0, %d\n",(ast->next)->value);
-  		printf("lw $t1, 4($sp)\n\n");
-  
-  		printf("sub $a0, $a0, $t1\n\n");
-  
-  		printf("addiu $sp, $sp, 4\n\n");
-		if (canAssign == 1){
-			callAssign();			
-		}	
-		if (canPrint == 1){
-			callPrint();
-			canPrint=0;
-		}
-	}
-	if (!strcmp(ast->type, "*")){
-		printf("li $a0, %d\n",(ast->down)->value);
-  		printf("sw $a0, 0($sp)\n");
-  		printf("addiu $sp, $sp, -4\n\n");
-
-  		printf("li $a0, %d\n",(ast->next)->value);
-  		printf("lw $t1, 4($sp)\n\n");
-  
-  		printf("mul $a0, $a0, $t1\n\n");
-  
-  		printf("addiu $sp, $sp, 4\n\n");
-		if (canAssign == 1){
-			callAssign();			
-		}	
-		if (canPrint == 1){
-			callPrint();
-			canPrint=0;
-		}
-	}
-	if (!strcmp(ast->type, "/")){
-		printf("li $a0, %d\n",(ast->down)->value);
-  		printf("sw $a0, 0($sp)\n");
-  		printf("addiu $sp, $sp, -4\n\n");
-
-  		printf("li $a0, %d\n",(ast->next)->value);
-  		printf("lw $t1, 4($sp)\n\n");
-  
-  		printf("mul $a0, $a0, $t1\n\n");
-  
-  		printf("addiu $sp, $sp, 4\n\n");
-		if (canAssign == 1){
-			callAssign();			
-		}	
-		if (canPrint == 1){
-			callPrint();
-			canPrint=0;
-		}
-	}
 		
+	}
+	
 	//If generation 
 	if (!strcmp(ast->type, "if")){
 		printf("if ");

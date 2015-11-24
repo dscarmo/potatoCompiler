@@ -101,7 +101,8 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_VAR TOKEN_ID{printf("assignemt de id para comando %s\n", $2); $$ = createNode("assign", createId($2), NULL);}
+	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);}
+	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2); $$ = createNode("criavar", createId($2), $4);}
 	| TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);}
 	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
@@ -121,8 +122,7 @@ colonexp:
 
 //MY FUCKING FUNCTION CALL
 //chamadadefuncao:	
-	
-	
+
 
 listaexp: {}
 	| exp {$$ = createNode("umaexp", $1, NULL);}
@@ -191,6 +191,11 @@ int main(int, char**) {
 	printf("\n");
 	
 	separatingPhases("gerancao do  MIPS:");
+
+	printf(".data\n");
+	varGen(ast);
+	printf("\n\n");
+
 	printf(".text\n");
 	printf(".globl main\n\n");
 	printf("main:\n\n");
