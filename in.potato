@@ -1,3 +1,7 @@
-var a=1
-a=1+2
-print(a)
+var a=10
+var c
+while a > c do
+c=c+1
+end
+c=c*20
+print(c)
