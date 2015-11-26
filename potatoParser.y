@@ -80,6 +80,8 @@ void yyerror(const char *s);
 %token TOKEN_ETC
 %start Input
 
+
+%type <ast>declaracaodevar
 %type <ast> bloco 
 %type <ast> comando 
 %type <ast> exp
@@ -88,6 +90,7 @@ void yyerror(const char *s);
 %type <sval> opbin
 
 %%
+
 ///*//Debug Area
 //prototype: createNode (char *type, no *down, no *next);
 Input:
@@ -101,16 +104,11 @@ bloco:
 
 //Comandos principais e coisas auxiliares
 comando:
-	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);}
-	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2); $$ = createNode("criavar", createId($2), $4);}
-	| TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);}
-	| TOKEN_IF exp TOKEN_THEN bloco elseif else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
+	declaracaodevar;
+	| TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);if(checkVar($1)==0) yyerror("Variavel nao declarada");}
+	| TOKEN_IF exp TOKEN_THEN bloco else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
-	| TOKEN_FOR TOKEN_ID TOKEN_ASSIGN exp TOKEN_COLON exp colonexp TOKEN_DO bloco TOKEN_END {$$ = createNode("for", $9, $4);}
 	| TOKEN_ID TOKEN_LPAREN listaexp TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
-	;
-elseif:
-	| TOKEN_ELSEIF exp TOKEN_THEN bloco elseif
 	;
 else:
 	| TOKEN_ELSE bloco
@@ -118,6 +116,11 @@ else:
 colonexp:
 	| TOKEN_COLON exp
 	;
+declaracaodevar:
+	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);addLista($2);}
+	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
+	;
+
 //
 
 //MY FUCKING FUNCTION CALL
@@ -138,10 +141,10 @@ exp:
 	| TOKEN_NUMBER {$$ = createNumber($1);}
 	| TOKEN_STRING {$$ = createString($1);}
 	| TOKEN_ETC {$$ = createNode("etc", NULL, NULL);}
-	| TOKEN_ID {$$ = createId($1);}
+	| TOKEN_ID {$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada");}
 	| exp opbin exp {printf("operacao %s para exp\n", $2); $$ = createNode($2, $1, $3);}
 	;	
-
+//$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada")
 opbin:
 	TOKEN_PLUS {$$ = "+";}
 	| TOKEN_MINUS {$$ = "-";} 
@@ -155,7 +158,7 @@ opbin:
 	| TOKEN_GREATER {$$ = ">";}
 	| TOKEN_GEQUAL {$$ = ">=";}
 	| TOKEN_EQUAL {printf("equal no opbin!\n"); $$ = "==";}
-	| TOKEN_NEQUAL {$$ = "<=";}
+	| TOKEN_NEQUAL {$$ = "~=";}
 	| TOKEN_AND {$$ = "and";}
 	| TOKEN_OR {$$ = "or";}
 	;
@@ -163,12 +166,13 @@ opbin:
 
 %%
 
+
 void separatingPhases(const char* string){
 	cout << "\n\n\n /////////////////////////////\n" << "Executando fase de " << string << "\n////////////////////////////////\n\n\n";
 }
 
 int main(int, char**) {
-	
+	criaLista();
 	separatingPhases("Parser e Léxico");
 		
 	// usar arquivo como entrada
@@ -185,6 +189,7 @@ int main(int, char**) {
 	do {
 		yyparse();
 	} while (!feof(yyin));
+	
 	
 	separatingPhases("Representação Intermediária - Absctract Syntax Tree (notação infixa):");
 	printAst(ast);
@@ -210,5 +215,6 @@ void yyerror(const char *s) {
 	cout << "NOOOO! parse error na linha " << line_num << "  Message: " << s << endl;
 	exit(-1);
 }
+
 
 
