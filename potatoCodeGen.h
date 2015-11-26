@@ -7,5 +7,6 @@ int checkConstruction(no *ast, const char *stype, const char *sdown, const char 
 void codeGen(no *ast);
 void generateVar(no *ast);
 void varGen(no *ast);
+void callExpression(no* ast);
 
 #endif 
