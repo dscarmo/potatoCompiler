@@ -26,5 +26,13 @@ no *createNode (const char *type, no *down, no *next);
 
 void printAst(no *n);
 
+void addLista(const char* c);
+
+void criaLista();
+
+void printLista();
+
+int checkVar(const char* c);
+
 
 #endif 
