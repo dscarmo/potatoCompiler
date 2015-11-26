@@ -43,6 +43,7 @@ void storeTemp(no *ast){
 	printf("lw $a0, %s\n",(ast->svalue));
   	printf("lw $t1, 4($sp)\n\n");
 	}
+	
 }
 
 void varGen(no *ast){
@@ -231,11 +232,7 @@ void generateCode (no *ast){
 		variableNumber++;
 		if (!strcmp((ast->next)->type, "number")){
 			printf("li $a0 %d\n", (ast -> next)-> value);
-			printf("sw $a0, 0($sp)\n\n");
-  			//printf("addiu $sp, $sp, -4\n\n");
-			//printf("addiu $sp, $sp, 4\n\n");
 			printf("sw $a0, %s\n\n",(ast->down) -> svalue);
-			printf("lw $a0, %s\n\n",(ast->down) -> svalue);
 			
 		}
 		else if (!strcmp((ast->next)->type, "id")){
@@ -281,7 +278,8 @@ void generateCode (no *ast){
 		//Check content of bloco
 		printf("label%d: \n", labelNumber);
 		printf("#inicio do bloco\n");
-		generateCode((ast -> down) -> down);	
+		codeGen((ast -> down));	
+		printf("#fim do bloco e do if\n");
 		printf("label%d: \n", labelNumber+1);
 		labelNumber++;
 	}	
@@ -295,8 +293,10 @@ void generateCode (no *ast){
 		//Check content of bloco
 		printf("label%d: \n", labelNumber);
 		printf("#inicio do bloco\n");
-		generateCode((ast -> down) -> down);
-		callComp(ast -> next);	
+		codeGen((ast -> down));
+		printf("#fim do bloco\n");
+		callComp(ast -> next);
+		printf("#Fim do while\n");	
 		printf("label%d: \n", labelNumber+1);
 		labelNumber++;
 	}
