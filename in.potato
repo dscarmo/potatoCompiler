@@ -1,7 +1,9 @@
-var a=10
-var c
-while a > c do
-c=c+1
-end
-c=c*20
+var a
+var c=20
+
+while a < c do
+a=a+18
+c=c+5
 print(c)
+end
+print(a)
