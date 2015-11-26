@@ -3,6 +3,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+const char* varlist[200] ;
+int j=0;
+int size=0;
+void criaLista(){
+	for(int i=0;i < 200;i++){
+		varlist[i]=0;
+	}
+}
+
+void addLista(const char* c){
+	varlist[j]=c;
+	j++;
+}
+
+void printLista(){
+	printf("%s\n",varlist[0]);
+	printf("%s\n",varlist[1]);
+}
+
+int checkVar(const char* c){
+	int i=0;
+	for (int i=0;i<j;i++){
+		if (strcmp (c,varlist[i])==0){
+			return 1;
+			}		
+	}
+	return 0;
+}
+
 static no *alocarNo(){
 	no *n = (no *)malloc(sizeof(no));
  
@@ -82,6 +112,5 @@ void printAst(no *n){
 		printAst(n->next);
 	}	
 }
-
 
 
