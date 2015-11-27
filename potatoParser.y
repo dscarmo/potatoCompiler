@@ -80,7 +80,7 @@ void yyerror(const char *s);
 %token TOKEN_ETC
 %start Input
 
-
+%type <ast>else
 %type <ast>declaracaodevar
 %type <ast> bloco 
 %type <ast> comando 
@@ -111,7 +111,7 @@ comando:
 	| TOKEN_ID TOKEN_LPAREN listaexp TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
 	;
 else:
-	| TOKEN_ELSE bloco
+	| TOKEN_ELSE bloco{printf("bloco else\n"); $$ = createNode("else",NULL , $2);}
 	;
 colonexp:
 	| TOKEN_COLON exp
@@ -121,10 +121,7 @@ declaracaodevar:
 	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
 	;
 
-//
-
-//MY FUCKING FUNCTION CALL
-//chamadadefuncao:	
+//	
 
 
 listaexp: {}
@@ -158,7 +155,7 @@ opbin:
 	| TOKEN_GREATER {$$ = ">";}
 	| TOKEN_GEQUAL {$$ = ">=";}
 	| TOKEN_EQUAL {printf("equal no opbin!\n"); $$ = "==";}
-	| TOKEN_NEQUAL {$$ = "~=";}
+	| TOKEN_AEQUAL {$$ = "~=";}
 	| TOKEN_AND {$$ = "and";}
 	| TOKEN_OR {$$ = "or";}
 	;
