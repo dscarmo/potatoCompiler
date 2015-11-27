@@ -1,9 +1,10 @@
-var a
-var c=20
+var kct=10*5
+var porra=25
 
-while a < c do
-a=a+18
-c=c+5
-print(c)
+if kct > porra then
+
+print(kct / porra)
+
 end
-print(a)
+
+
