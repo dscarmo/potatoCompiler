@@ -65,7 +65,25 @@ void generateVar(no *ast){
 		if (!ast->next)		 
 			printf ("%s: .word  0\n", (ast->down)->svalue);
 		else{	
-			printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next)->value);
+			if(!strcmp(ast->next->type, "+")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value + (ast->next->next)->value);				
+			}
+			else if(!strcmp(ast->next->type, "-")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value - (ast->next->next)->value);				
+			}
+			else if(!strcmp(ast->next->type, "*")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value * (ast->next->next)->value);				
+			}
+			else if(!strcmp(ast->next->type, "/")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value / (ast->next->next)->value);				
+			}
+			else if(!strcmp(ast->next->type, "and")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value & (ast->next->next)->value);				
+			}
+			else if(!strcmp(ast->next->type, "or")){
+				printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next->down)->value | (ast->next->next)->value);				
+			}
+			else printf ("%s: .word  %d\n", (ast->down)->svalue,(ast->next)->value);
 		}	
 
 	}
@@ -283,6 +301,8 @@ void generateCode (no *ast){
 		printf("label%d: \n", labelNumber+1);
 		labelNumber++;
 	}	
+	
+	
 
 	//while generation 
 	if (!strcmp(ast->type, "while")){
