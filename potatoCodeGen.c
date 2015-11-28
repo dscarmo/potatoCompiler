@@ -6,16 +6,18 @@
 
 int variableNumber = 0;
 int labelNumber = 0;
-
+int whileLabel=0;
 
 void codeGen(no *ast){
 	
 	if 	(ast == NULL){
 		return;
 	} else {
-		codeGen(ast->down);
+		
 	
 		generateCode(ast);
+		
+		codeGen(ast->down);
 				
 		codeGen(ast->next);
 		
@@ -126,6 +128,19 @@ void callExpression(no* ast){
 		
 	}
 	if (!strcmp(ast->type, "-")){
+		
+		if (!ast->next){
+			if(!strcmp(ast->down->type, "number")){		
+				printf("li $t1 %d\n",ast->down->value);		
+				printf("neg $a0 $t1\n\n");		
+			}
+			else if(!strcmp(ast->down->type, "id")){
+				printf("lw $t1 %s\n",ast->down->svalue);		
+				printf("neg $a0 $t1\n\n");
+			}		
+		}
+		else{		
+		
 		storeReg(ast->next);
   		printf("addiu $sp, $sp, -4\n\n");
 
@@ -134,7 +149,7 @@ void callExpression(no* ast){
   		printf("sub $a0, $a0, $t1\n\n");
   
   		printf("addiu $sp, $sp, 4\n\n");
-		
+		}
 		
 	}
 	if (!strcmp(ast->type, "*")){
@@ -183,16 +198,30 @@ void callExpression(no* ast){
   		printf("addiu $sp, $sp, 4\n\n");
 		
 	}
+
+	if (!strcmp(ast->type, "not")){
+		if (!ast->next){
+			if(!strcmp(ast->down->type, "number")){		
+				printf("li $t1 %d\n",ast->down->value);		
+				printf("not $a0 $t1\n\n");		
+			}
+			else if(!strcmp(ast->down->type, "id")){
+				printf("lw $t1 %s\n",ast->down->svalue);		
+				printf("not $a0 $t1\n\n");
+			}				
+		
+		}
+	}
 }
 
-void callComp(no* ast){
+void callComp(no* ast,int returnLabel){
 	
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("beq $a0 $t1 label%d\n\n",labelNumber);
+		printf("beq $a0 $t1 label%d\n\n",returnLabel);
 	}
 	
 	if (!strcmp(ast->type, ">")){
@@ -200,7 +229,7 @@ void callComp(no* ast){
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("blt $a0 $t1 label%d\n\n",labelNumber);
+		printf("blt $a0 $t1 label%d\n\n",returnLabel);
 	}
 	
 	if (!strcmp(ast->type, ">=")){
@@ -208,7 +237,7 @@ void callComp(no* ast){
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("ble $a0 $t1 label%d\n\n",labelNumber);
+		printf("ble $a0 $t1 label%d\n\n",returnLabel);
 	}
 
 	if (!strcmp(ast->type, "<")){
@@ -216,7 +245,7 @@ void callComp(no* ast){
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("bgt $a0 $t1 label%d\n\n",labelNumber);
+		printf("bgt $a0 $t1 label%d\n\n",returnLabel);
 	}
 
 	if (!strcmp(ast->type, "<=")){
@@ -224,7 +253,7 @@ void callComp(no* ast){
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("bge $a0 $t1 label%d\n\n",labelNumber);
+		printf("bge $a0 $t1 label%d\n\n",returnLabel);
 	}
 
 	if (!strcmp(ast->type, "~=")){
@@ -232,7 +261,58 @@ void callComp(no* ast){
   		printf("addiu $sp, $sp, -4\n\n");
 
   		storeTemp(ast->next);
-		printf("bne $a0 $t1 label%d\n\n",labelNumber);
+		printf("bne $a0 $t1 label%d\n\n",returnLabel);
+	}
+}
+
+void callWhileComp(no* ast,int returnLabel){
+	
+	if (!strcmp(ast->type, "==")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("beq $a0 $t1 wlabel%d\n\n",returnLabel);
+	}
+	
+	if (!strcmp(ast->type, ">")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("blt $a0 $t1 wlabel%d\n\n",returnLabel);
+	}
+	
+	if (!strcmp(ast->type, ">=")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("ble $a0 $t1 wlabel%d\n\n",returnLabel);
+	}
+
+	if (!strcmp(ast->type, "<")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("bgt $a0 $t1 wlabel%d\n\n",returnLabel);
+	}
+
+	if (!strcmp(ast->type, "<=")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("bge $a0 $t1 wlabel%d\n\n",returnLabel);
+	}
+
+	if (!strcmp(ast->type, "~=")){
+		storeReg(ast->down);
+  		printf("addiu $sp, $sp, -4\n\n");
+
+  		storeTemp(ast->next);
+		printf("bne $a0 $t1 wlabel%d\n\n",returnLabel);
 	}
 }
 
@@ -261,7 +341,7 @@ void generateCode (no *ast){
 		else{	
 			callExpression(ast -> next);
 			printf("sw $a0, %s\n\n",(ast->down) -> svalue);
-			printf("lw $a0, %s\n\n",(ast->down) -> svalue);
+			//printf("lw $a0, %s\n\n",(ast->down) -> svalue);
 		 	//getExpression(ast->next);
 		}
 	}
@@ -289,36 +369,40 @@ void generateCode (no *ast){
 	
 	//If generation 
 	if (!strcmp(ast->type, "if")){
+		int endLabelif;		
 		labelNumber++;
+		endLabelif=labelNumber;
 		printf("#inicio do if\n");		
-		callComp(ast -> next);		
-		printf("b label%d\n\n",labelNumber+1);
+		callComp(ast -> next,endLabelif);		
+		printf("b Endlabel%d\n\n",endLabelif);
 		//Check content of bloco
 		printf("label%d: \n", labelNumber);
 		printf("#inicio do bloco\n");
 		codeGen((ast -> down));	
 		printf("#fim do bloco e do if\n");
-		printf("label%d: \n", labelNumber+1);
+		printf("Endlabel%d: \n",endLabelif);
 		labelNumber++;
-	}	
-	
+	}		
+
 	
 
 	//while generation 
 	if (!strcmp(ast->type, "while")){
-		labelNumber++;
+		int endLabel;		
+		whileLabel++;
+		endLabel=whileLabel;
 		printf("#inicio do while\n");		
-		callComp(ast -> next);		
-		printf("b label%d\n\n",labelNumber+1);
+		callWhileComp(ast -> next,endLabel);		
+		printf("b wEndlabel%d\n\n",endLabel);
 		//Check content of bloco
-		printf("label%d: \n", labelNumber);
+		printf("wlabel%d: \n", whileLabel);
 		printf("#inicio do bloco\n");
 		codeGen((ast -> down));
 		printf("#fim do bloco\n");
-		callComp(ast -> next);
+		callWhileComp(ast -> next,endLabel);
 		printf("#Fim do while\n");	
-		printf("label%d: \n", labelNumber+1);
-		labelNumber++;
+		printf("wEndlabel%d: \n", endLabel);
+		whileLabel++;
 	}
 	
 }
