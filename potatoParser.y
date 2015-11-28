@@ -88,7 +88,7 @@ void yyerror(const char *s);
 //%type <ast> chamadadefuncao
 %type <ast> listaexp
 %type <sval> opbin
-
+%type <sval> opunaria
 %%
 
 ///*//Debug Area
@@ -111,7 +111,7 @@ comando:
 	| TOKEN_ID TOKEN_LPAREN listaexp TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
 	;
 else:
-	| TOKEN_ELSE bloco{printf("bloco else\n"); $$ = createNode("else",NULL , $2);}
+	|TOKEN_ELSE bloco{printf("bloco else\n"); $$ = createNode("else",NULL , $2);}
 	;
 colonexp:
 	| TOKEN_COLON exp
@@ -132,14 +132,10 @@ listaexp: {}
 
 //Expressoes e simbolos
 exp: 
-	TOKEN_NIL {$$ = createNode("null", NULL, NULL);}
-	| TOKEN_FALSE {$$ = createNode("false", NULL, NULL);}
-	| TOKEN_TRUE {$$ = createNode("true", NULL, NULL);}
-	| TOKEN_NUMBER {$$ = createNumber($1);}
-	| TOKEN_STRING {$$ = createString($1);}
-	| TOKEN_ETC {$$ = createNode("etc", NULL, NULL);}
+	  TOKEN_NUMBER {$$ = createNumber($1);}
 	| TOKEN_ID {$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada");}
 	| exp opbin exp {printf("operacao %s para exp\n", $2); $$ = createNode($2, $1, $3);}
+	| opunaria exp {printf("operacao opunaria\n"); $$ = createNode($1, $2, NULL);}
 	;	
 //$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada")
 opbin:
@@ -147,9 +143,6 @@ opbin:
 	| TOKEN_MINUS {$$ = "-";} 
 	| TOKEN_MULTIPLY {$$ = "*";}
 	| TOKEN_DIV {$$ = "/";}
-	| TOKEN_HAT {$$ = "^";}
-	| TOKEN_MOD {$$ = "%";}
-	| TOKEN_DOUBLEPOINT {$$ = "..";}
 	| TOKEN_LESSER {$$ = "<";}
 	| TOKEN_LEQUAL {$$ = "<=";}
 	| TOKEN_GREATER {$$ = ">";}
@@ -159,7 +152,11 @@ opbin:
 	| TOKEN_AND {$$ = "and";}
 	| TOKEN_OR {$$ = "or";}
 	;
-//	
+//
+
+opunaria:	
+	TOKEN_MINUS {$$ = "-";}
+	|TOKEN_NOT {$$ = "not";} 
 
 %%
 
