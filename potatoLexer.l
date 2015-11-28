@@ -16,25 +16,15 @@ string      \"(\\.|[^"])*\"
 
 %%
 and 		{printf("Token: %s Type: AND\n", yytext); return TOKEN_AND;}
-break 		{printf("Token: %s Type: BRK\n", yytext);return TOKEN_BREAK;}
 do    		{printf("Token: %s Type: DO\n", yytext);return TOKEN_DO;}
 else		{printf("Token: %s Type: ELSE\n", yytext);return TOKEN_ELSE;}
-elseif		{printf("Token: %s Type: ELSIF\n", yytext);return TOKEN_ELSEIF;}
 end			{printf("Token: %s Type: END\n", yytext);return TOKEN_END;}
-false		{printf("Token: %s Type: FALSE\n", yytext);return TOKEN_FALSE;}
 for			{printf("Token: %s Type: FOR\n", yytext);return TOKEN_FOR;}
 function 	{printf("Token: %s Type: FUNC\n", yytext);return TOKEN_FUNCTION;}
 if			{printf("Token: %s Type: IF\n", yytext);return TOKEN_IF;}
-in			{printf("Token: %s Type: IN\n", yytext);return TOKEN_IN;}	
-local 		{printf("Token: %s Type: LOCAL\n", yytext);return TOKEN_LOCAL;}
-nil			{printf("Token: %s Type: NULL\n", yytext);return TOKEN_NIL;}
 not			{printf("Token: %s Type: NOT\n", yytext);return TOKEN_NOT;}
 or			{printf("Token: %s Type: OR\n", yytext);return TOKEN_OR;}
-repeat		{printf("Token: %s Type: REPEAT\n", yytext);return TOKEN_REPEAT;}
-return		{printf("Token: %s Type: RETURN\n", yytext);return TOKEN_RETURN;}
 then		{printf("Token: %s Type: THEN\n", yytext);return TOKEN_THEN;}
-true        {printf("Token: %s Type: TRUE\n", yytext);return TOKEN_TRUE;}
-until	 	{printf("Token: %s Type: UNTIL\n", yytext);return TOKEN_UNTIL;}
 while		{printf("Token: %s Type: WHILE\n", yytext);return TOKEN_WHILE;}
 var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 
@@ -48,8 +38,6 @@ var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 "-"			{printf("Token: %s Type: SUB\n", yytext);return TOKEN_MINUS;}
 "*"			{printf("Token: %s Type: ADD\n", yytext);return TOKEN_MULTIPLY;}
 "/"			{printf("Token: %s Type: DIV\n", yytext);return TOKEN_DIV;}
-"%"			{printf("Token: %s Type: MOD\n", yytext);return TOKEN_MOD;}
-"^"			{printf("Token: %s Type: HAT\n", yytext);return TOKEN_HAT;}
 "#"			{printf("Token: %s Type: CROSS\n", yytext);return TOKEN_CROSS;}
 "=="		{printf("Token: %s Type: EQUAL\n", yytext);return TOKEN_EQUAL;}
 "~="		{printf("Token: %s Type: AEQUAL\n", yytext);return TOKEN_AEQUAL;}
@@ -68,8 +56,7 @@ var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 ":"			{printf("Token: %s Type: TWOPOINTS\n", yytext);return TOKEN_TWOPOINTS;}
 ","			{printf("Token: %s Type: COLON\n", yytext);return TOKEN_COLON;}
 "."     	{printf("Token: %s Type: POINT\n", yytext);return TOKEN_POINT;}
-".."		{printf("Token: %s Type: DOUBLEPOINT\n", yytext);return TOKEN_DOUBLEPOINT;}
-"..." 		{printf("Token: %s Type: ETC\n", yytext);return TOKEN_ETC;}
+
 \n			{++line_num;}
 {blank}     ;
 .			{printf("Lexical error! %s not recognized \n", yytext);}
