@@ -1,10 +1,10 @@
-var kct=10*5
-var porra=25
+var a=20
 
-if kct > porra then
-
-print(kct / porra)
-
+while a < 50 do
+a=a+10
+if a== 30 then print(a) end
 end
+
+print(a)
 
 
