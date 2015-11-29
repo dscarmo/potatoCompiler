@@ -362,8 +362,8 @@ void generateCode (no *ast){
 			
 		}
 		else if (!strcmp((ast->next)->type, "id")){
-			fprintf(output, "lw $t0, %s\n",(ast -> next)-> svalue) ; 
-			fprintf(output, "sw $t0, %s\n\n",(ast->down) -> svalue);			
+			fprintf(output, "lw $a0, %s\n",(ast -> next)-> svalue) ; 
+			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);			
 			//fprintf(output, " %s\n", (ast -> next)-> svalue);
 		}
 		else{	
