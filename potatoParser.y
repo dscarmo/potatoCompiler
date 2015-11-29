@@ -113,9 +113,6 @@ comando:
 else:
 	|TOKEN_ELSE bloco{printf("bloco else\n"); $$ = createNode("else",NULL , $2);}
 	;
-colonexp:
-	| TOKEN_COLON exp
-	;
 declaracaodevar:
 	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);addLista($2);}
 	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
@@ -165,12 +162,23 @@ void separatingPhases(const char* string){
 	cout << "\n\n\n /////////////////////////////\n" << "Executando fase de " << string << "\n////////////////////////////////\n\n\n";
 }
 
-int main(int, char**) {
+int main(int argc, char * argv[]) {
+	if (argc != 3){
+		cout << "\nArgumentos incorretos. Como usar: ./potatoParser arquivo_entrada arquivo_saida\n" << endl;
+		exit(-1);
+	}
+	
+	//Inicializa arquivo de saida
+	initializeOutput(argv[2]);
+	
+	//Cria lista para variaveis na geracao de código
 	criaLista();
+	
+	//Começa 
 	separatingPhases("Parser e Léxico");
 		
 	// usar arquivo como entrada
-	FILE *myfile = fopen("in.potato", "r");
+	FILE *myfile = fopen(argv[1], "r");
 	if (!myfile) {
 		cout << "Cade o .potato file D:" << endl;
 		return -1;
@@ -189,19 +197,11 @@ int main(int, char**) {
 	printAst(ast);
 	printf("\n");
 	
-	separatingPhases("gerancao do  MIPS:");
-
-	printf(".data\n");
-	varGen(ast);
-	printf("\n\n");
-
-	printf(".text\n");
-	printf(".globl main\n\n");
-	printf("main:\n\n");
-	codeGen(ast);
-	printf("li $v0, 10\n");  
-  	printf("syscall\n\n"); 
+	separatingPhases("Geraçao do  MIPS");
 	
+	codeGenBegins(ast);
+	
+	printf("Sucesso! Código MIPs gravado no arquivo de saida especificado!\n digite \"cat %s\" no terminal para abrir o código.\n\n", argv[2]);
 }
 
 
