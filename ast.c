@@ -97,8 +97,9 @@ void printAst(no *n){
 	if 	(n == NULL){
 		return;
 	} else {
+		//Posfix print
 		printAst(n->down);
-				
+		printAst(n->next);
 		printf("%s", n->type);
 						
 		if (!strcmp(n->type, "id"))
@@ -109,7 +110,7 @@ void printAst(no *n){
 		else 
 			printf("\n");
 					
-		printAst(n->next);
+		
 	}	
 }
 

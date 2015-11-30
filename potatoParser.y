@@ -193,7 +193,7 @@ int main(int argc, char * argv[]) {
 	} while (!feof(yyin));
 	
 	
-	separatingPhases("Representação Intermediária - Absctract Syntax Tree (notação infixa):");
+	separatingPhases("Representação Intermediária - Absctract Syntax Tree (notação posfixa):");
 	printAst(ast);
 	printf("\n");
 	
