@@ -49,18 +49,22 @@ void codeGen(no *ast){
 		
 	}
 }
-
+int opCount=0;
 void storeReg(no *ast){
 	
 	if(!strcmp(ast->type, "number")){
 		fprintf(output, "li $a0, %d\n",(ast->value));
   		fprintf(output, "sw $a0, 0($sp)\n");
+		fprintf(output, "addiu $sp, $sp, -4\n\n");
 	}
 	else if(!strcmp(ast->type, "id")){
 		fprintf(output, "lw $a0, %s\n",(ast->svalue));
   		fprintf(output, "sw $a0, 0($sp)\n");
-	}else callExpression(ast);
-
+		fprintf(output, "addiu $sp, $sp, -4\n\n");
+	}else {
+		opCount++;
+		callExpression(ast);
+		}
 }
 
 void storeTemp(no *ast){
@@ -72,7 +76,10 @@ void storeTemp(no *ast){
 	else if(!strcmp(ast->type, "id")){
 		fprintf(output, "lw $a0, %s\n",(ast->svalue));
   		fprintf(output, "lw $t1, 4($sp)\n\n");
-	}else callExpression(ast);
+	}else{	
+		opCount++;
+		callExpression(ast);
+	}
 	
 }
 
@@ -145,21 +152,61 @@ void getExpression (no *ast){
 
 
 void callExpression(no* ast){
+	printf("%s\n\n",ast->type);
 	if ((!strcmp(ast->type, "exppar"))){
-		callExpression(ast -> down);
+		printf("%d\n\n\n",opCount);
+		if (ast->down) callExpression(ast -> down);
+		if (ast->next) callExpression(ast -> next);
+		
 	
 	}	
 	else{	
 	
 	if (!strcmp(ast->type, "+")){
-				
-		storeReg(ast->next);		
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
-  		storeTemp(ast->down);
-  		fprintf(output, "add $a0, $a0, $t1\n\n");
+		if(opCount==0){		
+			storeReg(ast->down);		
+  		
+  			storeTemp(ast->next);
+  			if (opCount==0){
+				fprintf(output, "add $a0, $a0, $t1\n\n");
   
-  		fprintf(output, "addiu $sp, $sp, 4\n\n");
-		
+  				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				}
+			}
+		else{
+			if(!strcmp(ast->down->type, "number")){			
+				fprintf(output, "li $t1, %d\n",(ast->down->value));
+  				fprintf(output, "add $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+				}
+			if(!strcmp(ast->down->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->down->svalue));
+  				fprintf(output, "add $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "number")){
+				fprintf(output, "li $t1, %d\n",(ast->next->value));
+  				fprintf(output, "add $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->next->svalue));
+  				fprintf(output, "add $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if (ast->down) callExpression(ast->down);
+  			if (ast->next) callExpression(ast->next);
+			
+  			//fprintf(output, "addiu $sp, $sp, 4\n\n");
+			}
 		}
 			
 	
@@ -175,45 +222,182 @@ void callExpression(no* ast){
 				fprintf(output, "neg $a0 $t1\n\n");
 			}		
 		}
-		else{		
-		printf("%s\n\n\n",ast->down->type);
+		else{
+			if(opCount==0){		
+			storeReg(ast->down);		
+  		
+  			storeTemp(ast->next);
+  			if (opCount==0){
+				fprintf(output, "sub $a0, $t1, $a0\n\n");
+  
+  				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				}
+			}
+		else{
+			if(!strcmp(ast->down->type, "number")){			
+				fprintf(output, "li $t1, %d\n",(ast->down->value));
+  				fprintf(output, "sub $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+				}
+			if(!strcmp(ast->down->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->down->svalue));
+  				fprintf(output, "sub $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "number")){
+				fprintf(output, "li $t1, %d\n",(ast->next->value));
+  				fprintf(output, "sub $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->next->svalue));
+  				fprintf(output, "sub $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if (ast->down) callExpression(ast->down);  			
+			if (ast->next) callExpression(ast->next);
+			
+  			//fprintf(output, "addiu $sp, $sp, 4\n\n");
+			}		
+		/*
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
-
+  		
   		storeTemp(ast->next);
   
   		fprintf(output, "sub $a0, $t1, $a0\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
+		*/
 		}
 		
 	}
 	else if (!strcmp(ast->type, "*")){
+		
+		if(opCount==0){		
+			storeReg(ast->down);		
+  		
+  			storeTemp(ast->next);
+  			if (opCount==0){
+				fprintf(output, "mul $a0, $a0, $t1\n\n");
+  
+  				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				}
+			}
+		else{
+			if(!strcmp(ast->down->type, "number")){			
+				fprintf(output, "li $t1, %d\n",(ast->down->value));
+  				fprintf(output, "mul $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+				}
+			if(!strcmp(ast->down->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->down->svalue));
+  				fprintf(output, "mul $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "number")){
+				fprintf(output, "li $t1, %d\n",(ast->next->value));
+  				fprintf(output, "mul $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->next->svalue));
+  				fprintf(output, "mul $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if (ast->down) callExpression(ast->down);
+  			if (ast->next) callExpression(ast->next);
+			
+  			//fprintf(output, "addiu $sp, $sp, 4\n\n");
+			}		
+		/*		
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
   
   		fprintf(output, "mul $a0, $a0, $t1\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
+		*/
 		
 	}
 	else if (!strcmp(ast->type, "/")){
+		if(opCount==0){		
+			storeReg(ast->down);		
+  		
+  			storeTemp(ast->next);
+  			if (opCount==0){
+				fprintf(output, "div $a0, $a0, $t1\n\n");
+  
+  				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				}
+			}
+		else{
+			if(!strcmp(ast->down->type, "number")){			
+				fprintf(output, "li $t1, %d\n",(ast->down->value));
+  				fprintf(output, "div $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+				}
+			if(!strcmp(ast->down->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->down->svalue));
+  				fprintf(output, "div $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "number")){
+				fprintf(output, "li $t1, %d\n",(ast->next->value));
+  				fprintf(output, "div $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if(!strcmp(ast->next->type, "id")){
+				fprintf(output, "lw $t1, %s\n",(ast->next->svalue));
+  				fprintf(output, "div $a0, $a0, $t1\n\n");
+				fprintf(output, "addiu $sp, $sp, 4\n\n");
+				fprintf(output, "sw $a0, 0($sp)\n");
+				fprintf(output, "addiu $sp, $sp, -4\n\n");
+			}
+			if (ast->down) callExpression(ast->down);
+  			if (ast->next) callExpression(ast->next);
+			
+  			//fprintf(output, "addiu $sp, $sp, 4\n\n");
+			}		
+		/*		
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);;
   
   		fprintf(output, "div $a0, $t1, $a0\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
+		*/
 		
 	}
 	
 	else if (!strcmp(ast->type, "and")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);;
   
@@ -225,7 +409,7 @@ void callExpression(no* ast){
 	
 	else if (!strcmp(ast->type, "or")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);;
   
@@ -258,7 +442,7 @@ void callComp(no* ast,int returnLabel){
 	}else	{
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "beq $a0 $t1 label%d\n\n",returnLabel);
@@ -266,7 +450,7 @@ void callComp(no* ast,int returnLabel){
 	
 	if (!strcmp(ast->type, ">")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "blt $a0 $t1 label%d\n\n",returnLabel);
@@ -274,7 +458,7 @@ void callComp(no* ast,int returnLabel){
 	
 	if (!strcmp(ast->type, ">=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "ble $a0 $t1 label%d\n\n",returnLabel);
@@ -282,7 +466,7 @@ void callComp(no* ast,int returnLabel){
 
 	if (!strcmp(ast->type, "<")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "bgt $a0 $t1 label%d\n\n",returnLabel);
@@ -290,15 +474,14 @@ void callComp(no* ast,int returnLabel){
 
 	if (!strcmp(ast->type, "<=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
-
+  		
   		storeTemp(ast->next);
 		fprintf(output, "bge $a0 $t1 label%d\n\n",returnLabel);
 	}
 
 	if (!strcmp(ast->type, "~=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "bne $a0 $t1 label%d\n\n",returnLabel);
@@ -314,7 +497,7 @@ if ((!strcmp(ast->type, "exppar"))){
 }else	{	
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "beq $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -322,7 +505,7 @@ if ((!strcmp(ast->type, "exppar"))){
 	
 	if (!strcmp(ast->type, ">")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "blt $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -330,7 +513,7 @@ if ((!strcmp(ast->type, "exppar"))){
 	
 	if (!strcmp(ast->type, ">=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "ble $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -338,7 +521,7 @@ if ((!strcmp(ast->type, "exppar"))){
 
 	if (!strcmp(ast->type, "<")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "bgt $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -346,7 +529,7 @@ if ((!strcmp(ast->type, "exppar"))){
 
 	if (!strcmp(ast->type, "<=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "bge $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -354,7 +537,7 @@ if ((!strcmp(ast->type, "exppar"))){
 
 	if (!strcmp(ast->type, "~=")){
 		storeReg(ast->down);
-  		fprintf(output, "addiu $sp, $sp, -4\n\n");
+  		
 
   		storeTemp(ast->next);
 		fprintf(output, "bne $a0 $t1 wlabel%d\n\n",returnLabel);
@@ -393,16 +576,19 @@ void generateCode (no *ast){
 		if (!strcmp((ast->next)->type, "number")){
 			fprintf(output, "li $a0 %d\n", (ast -> next)-> value);
 			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);
+			opCount=0;
 			
 		}
 		else if (!strcmp((ast->next)->type, "id")){
 			fprintf(output, "lw $a0, %s\n",(ast -> next)-> svalue) ; 
-			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);			
+			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);
+			opCount=0;			
 			//fprintf(output, " %s\n", (ast -> next)-> svalue);
 		}
 		else{	
 			callExpression(ast -> next);
 			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);
+			opCount=0;
 			//fprintf(output, "lw $a0, %s\n\n",(ast->down) -> svalue);
 		 	//getExpression(ast->next);
 			}
@@ -437,6 +623,7 @@ void generateCode (no *ast){
 			else{
 				callExpression(ast -> next ->down);
 				callPrint();
+				opCount=0;
 			}
 		}
 
@@ -462,7 +649,8 @@ void generateCode (no *ast){
 		endLabelif=labelNumber;
 		isIf=1;
 		fprintf(output, "#inicio do if\n");		
-		callComp(ast -> next,endLabelif);		
+		callComp(ast -> next,endLabelif);
+		opCount==0;		
 		fprintf(output, "b Endlabel%d\n\n",endLabelif);
 		//Check content of bloco
 		fprintf(output, "label%d: \n", labelNumber);
@@ -496,7 +684,8 @@ void generateCode (no *ast){
 		endLabel=whileLabel;
 		isWhile=1;
 		fprintf(output, "#inicio do while\n");		
-		callWhileComp(ast -> next,endLabel);		
+		callWhileComp(ast -> next,endLabel);
+		opCount==0;		
 		fprintf(output, "b wEndlabel%d\n\n",endLabel);
 		//Check content of bloco
 		fprintf(output, "wlabel%d: \n", whileLabel);
