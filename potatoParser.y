@@ -98,21 +98,22 @@ Input:
 	;
 
 bloco:
-	comando {printf("bloco de um comando encontrado \n"); $$ = createNode("bloco", $1, NULL);} 
-	| comando bloco {printf("varios comandos encontrados \n"); $$ = createNode("bloco", $1, $2); } 
+	comando TOKEN_SEMICOLON {printf("bloco de um comando encontrado \n"); $$ = createNode("bloco", $1, NULL);} 
+	|comando {printf("bloco de um comando encontrado \n"); $$ = createNode("bloco", $1, NULL);} 
+	| comando bloco {printf("varios comandos encontrados \n"); $$ = createNode("bloco", $1, $2); }
+ 	| comando TOKEN_SEMICOLON bloco {printf("varios comandos encontrados \n"); $$ = createNode("bloco", $1, $3); }
 	;
 
 //Comandos principais e coisas auxiliares
 comando:
 	declaracaodevar;
 	| TOKEN_ID TOKEN_ASSIGN exp {printf("assignemt de id para comando %s\n", $1); $$ = createNode("assign", createId($1), $3);if(checkVar($1)==0) yyerror("Variavel nao declarada");}
-	| TOKEN_IF exp TOKEN_THEN bloco else TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
+	| TOKEN_IF exp TOKEN_THEN bloco  TOKEN_END {printf("if exp bloco comando\n"); $$ = createNode("if", $4, $2);}
+	| TOKEN_IF exp TOKEN_THEN bloco TOKEN_ELSE bloco TOKEN_END {printf("if else\n"); $$ = createNode("ifelse", $4, $2);$$ = createNode("else", $6, NULL);}
 	| TOKEN_WHILE exp TOKEN_DO bloco TOKEN_END {$$ = createNode("while", $4, $2);}
 	| TOKEN_ID TOKEN_LPAREN listaexp TOKEN_RPAREN {printf("funcao ID \n"); $$ = createNode("chamada de funcao", createId($1), $3);}
 	;
-else:
-	|TOKEN_ELSE bloco{printf("bloco else\n"); $$ = createNode("else",NULL , $2);}
-	;
+
 declaracaodevar:
 	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);addLista($2);}
 	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
@@ -133,6 +134,7 @@ exp:
 	| TOKEN_ID {$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada");}
 	| exp opbin exp {printf("operacao %s para exp\n", $2); $$ = createNode($2, $1, $3);}
 	| opunaria exp {printf("operacao opunaria\n"); $$ = createNode($1, $2, NULL);}
+	| TOKEN_LPAREN exp TOKEN_RPAREN {$$ = createNode("exppar", $2, NULL);}
 	;	
 //$$ = createId($1);if(checkVar($1)==0) yyerror("Variavel nao declarada")
 opbin:
@@ -209,6 +211,5 @@ void yyerror(const char *s) {
 	cout << "NOOOO! parse error na linha " << line_num << "  Message: " << s << endl;
 	exit(-1);
 }
-
 
 
