@@ -103,7 +103,7 @@ void printAst(no *n){
 		printf("%s", n->type);
 						
 		if (!strcmp(n->type, "id"))
-			printf(", name: %s \n", n->svalue); //bugando
+			printf(", name: %s \n", n->svalue);
 		else 
 		if (!strcmp(n->type, "number"))
 			printf(" value: %d \n", n->value);

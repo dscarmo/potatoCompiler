@@ -11,6 +11,8 @@ extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" FILE *yyin;
 extern int line_num;
+extern int parCounter;
+extern const char *yytext;
 no *ast;
 void yyerror(const char *s);
 %}
@@ -80,8 +82,8 @@ void yyerror(const char *s);
 %token TOKEN_ETC
 %start Input
 
-%type <ast>else
-%type <ast>declaracaodevar
+%type <ast> else
+%type <ast> declaracaodevar
 %type <ast> bloco 
 %type <ast> comando 
 %type <ast> exp
@@ -116,7 +118,7 @@ comando:
 
 declaracaodevar:
 	TOKEN_VAR TOKEN_ID{printf("criacao de variavel %s\n", $2); $$ = createNode("criavar", createId($2), NULL);addLista($2);}
-	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com valor inicial %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
+	|TOKEN_VAR TOKEN_ID TOKEN_ASSIGN exp{printf("criacao de variavel com nome %s\n", $2);addLista($2); $$ = createNode("criavar", createId($2), $4);}
 	;
 
 //	
@@ -194,6 +196,9 @@ int main(int argc, char * argv[]) {
 		yyparse();
 	} while (!feof(yyin));
 	
+	if (parCounter != 0){
+		yyerror("Parênteses não fecham!");
+	}
 	
 	separatingPhases("Representação Intermediária - Absctract Syntax Tree (notação posfixa):");
 	printAst(ast);
@@ -208,7 +213,10 @@ int main(int argc, char * argv[]) {
 
 
 void yyerror(const char *s) {
-	cout << "NOOOO! parse error na linha " << line_num << "  Message: " << s << endl;
+	cout << " parse error na linha " << line_num << "  Message: " << s << " na posicao: " << yytext << endl;
+	if (parCounter != 0){
+		printf("Verifique fechamento dos parênteses!\n");
+	}
 	exit(-1);
 }
 

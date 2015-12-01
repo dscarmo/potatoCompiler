@@ -145,11 +145,11 @@ void getExpression (no *ast){
 
 
 void callExpression(no* ast){
-if ((!strcmp(ast->type, "exppar"))){
-	callExpression(ast -> down);
+	if ((!strcmp(ast->type, "exppar"))){
+		callExpression(ast -> down);
 	
-}	
-else{	
+	}	
+	else{	
 	
 	if (!strcmp(ast->type, "+")){
 				
@@ -252,10 +252,10 @@ else{
 }
 
 void callComp(no* ast,int returnLabel){
-if ((!strcmp(ast->type, "exppar"))){
-	callComp(ast -> down,returnLabel);
+	if ((!strcmp(ast->type, "exppar"))){
+		callComp(ast -> down,returnLabel);
 	
-}else	{
+	}else	{
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
@@ -470,7 +470,8 @@ void generateCode (no *ast){
 		codeGen((ast -> down));	
 		fprintf(output, "#fim do bloco e do if\n");
 		fprintf(output, "Endlabel%d: \n",endLabelif);
-		if (isWhile==1) whileCount=whileCount - ifCount;
+		if (isWhile==1) 
+			whileCount=whileCount - ifCount;
 		isIf=0;
 		labelNumber++;
 		}

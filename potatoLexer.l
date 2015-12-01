@@ -6,6 +6,7 @@
 using namespace std;
 #define YY_DECL extern "C" int yylex()
 int line_num = 1;
+int parCounter = 0;
 %}
 
 number		[0-9]+
@@ -46,8 +47,8 @@ var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 "<"			{printf("Token: %s Type: LESS\n", yytext);return TOKEN_LESSER;}
 ">"			{printf("Token: %s Type: MORE\n", yytext);return TOKEN_GREATER;}
 "="			{printf("Token: %s Type: ASSIGN\n", yytext);return TOKEN_ASSIGN;}
-"("			{printf("Token: %s Type: LPAREN\n", yytext);return TOKEN_LPAREN;}
-")"			{printf("Token: %s Type: RPAREN\n", yytext);return TOKEN_RPAREN;}
+"("			{printf("Token: %s Type: LPAREN\n", yytext);parCounter++;return TOKEN_LPAREN;}
+")"			{printf("Token: %s Type: RPAREN\n", yytext);parCounter--;return TOKEN_RPAREN;}
 "{"			{printf("Token: %s Type: LKEY\n", yytext);return TOKEN_LKEY;}
 "}"			{printf("Token: %s Type: RKEY\n", yytext);return TOKEN_RKEY;}
 "["			{printf("Token: %s Type: RBOX\n", yytext);return TOKEN_RBOX;}
