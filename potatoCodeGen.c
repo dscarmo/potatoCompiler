@@ -59,7 +59,7 @@ void storeReg(no *ast){
 	else if(!strcmp(ast->type, "id")){
 		fprintf(output, "lw $a0, %s\n",(ast->svalue));
   		fprintf(output, "sw $a0, 0($sp)\n");
-	}
+	}else callExpression(ast);
 
 }
 
@@ -72,7 +72,7 @@ void storeTemp(no *ast){
 	else if(!strcmp(ast->type, "id")){
 		fprintf(output, "lw $a0, %s\n",(ast->svalue));
   		fprintf(output, "lw $t1, 4($sp)\n\n");
-	}
+	}else callExpression(ast);
 	
 }
 
@@ -143,19 +143,27 @@ void getExpression (no *ast){
 		fprintf(output, " %d\n", (ast-> down)->value);
 }
 
+
 void callExpression(no* ast){
+if ((!strcmp(ast->type, "exppar"))){
+	callExpression(ast -> down);
+	
+}	
+else{	
+	
 	if (!strcmp(ast->type, "+")){
+				
 		storeReg(ast->next);		
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
-
   		storeTemp(ast->down);
   		fprintf(output, "add $a0, $a0, $t1\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
 		
-		
-	}
-	if (!strcmp(ast->type, "-")){
+		}
+			
+	
+	else if (!strcmp(ast->type, "-")){
 		
 		if (!ast->next){
 			if(!strcmp(ast->down->type, "number")){		
@@ -168,42 +176,42 @@ void callExpression(no* ast){
 			}		
 		}
 		else{		
-		
-		storeReg(ast->next);
+		printf("%s\n\n\n",ast->down->type);
+		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
 
-  		storeTemp(ast->down);
+  		storeTemp(ast->next);
   
-  		fprintf(output, "sub $a0, $a0, $t1\n\n");
+  		fprintf(output, "sub $a0, $t1, $a0\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
 		}
 		
 	}
-	if (!strcmp(ast->type, "*")){
-		storeReg(ast->next);
+	else if (!strcmp(ast->type, "*")){
+		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
 
-  		storeTemp(ast->down);
+  		storeTemp(ast->next);
   
   		fprintf(output, "mul $a0, $a0, $t1\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
 		
 	}
-	if (!strcmp(ast->type, "/")){
-		storeReg(ast->next);
+	else if (!strcmp(ast->type, "/")){
+		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
 
-  		storeTemp(ast->down);;
+  		storeTemp(ast->next);;
   
-  		fprintf(output, "div $a0, $a0, $t1\n\n");
+  		fprintf(output, "div $a0, $t1, $a0\n\n");
   
   		fprintf(output, "addiu $sp, $sp, 4\n\n");
 		
 	}
 	
-	if (!strcmp(ast->type, "and")){
+	else if (!strcmp(ast->type, "and")){
 		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
 
@@ -215,7 +223,7 @@ void callExpression(no* ast){
 		
 	}
 	
-	if (!strcmp(ast->type, "or")){
+	else if (!strcmp(ast->type, "or")){
 		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
 
@@ -227,7 +235,7 @@ void callExpression(no* ast){
 		
 	}
 
-	if (!strcmp(ast->type, "not")){
+	else if (!strcmp(ast->type, "not")){
 		if (!ast->next){
 			if(!strcmp(ast->down->type, "number")){		
 				fprintf(output, "li $t1 %d\n",ast->down->value);		
@@ -241,9 +249,13 @@ void callExpression(no* ast){
 		}
 	}
 }
+}
 
 void callComp(no* ast,int returnLabel){
+if ((!strcmp(ast->type, "exppar"))){
+	callComp(ast -> down,returnLabel);
 	
+}else	{
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
@@ -291,10 +303,15 @@ void callComp(no* ast,int returnLabel){
   		storeTemp(ast->next);
 		fprintf(output, "bne $a0 $t1 label%d\n\n",returnLabel);
 	}
+	
+}
 }
 
 void callWhileComp(no* ast,int returnLabel){
+if ((!strcmp(ast->type, "exppar"))){
+	callWhileComp(ast -> down,returnLabel);
 	
+}else	{	
 	if (!strcmp(ast->type, "==")){
 		storeReg(ast->down);
   		fprintf(output, "addiu $sp, $sp, -4\n\n");
@@ -343,18 +360,35 @@ void callWhileComp(no* ast,int returnLabel){
 		fprintf(output, "bne $a0 $t1 wlabel%d\n\n",returnLabel);
 	}
 }
+}
 
 void callPrint(){
 	fprintf(output, "li $v0, 1\n");
   	fprintf(output, "syscall\n\n");
 }
 
+int isWhile=0;
+int isIf=0;
+int ifCount=0;
+int whileCount=0;
 
 void generateCode (no *ast){
 	no *dummy = NULL;
 	
 	//Assign
 	if (!strcmp(ast->type, "assign")){
+		if (isIf == 1){
+			ifCount++;
+		}if (isWhile==1){
+			whileCount++;
+		}if ((isWhile==0 && whileCount > 0) && (isIf==0 && ifCount > 0)){
+			whileCount--;
+			ifCount--;
+		}else if (isWhile==0 && whileCount > 0){
+			whileCount--;
+		}else if (isIf==0 && ifCount > 0){
+			ifCount--;
+		}else{	
 		variableNumber++;
 		if (!strcmp((ast->next)->type, "number")){
 			fprintf(output, "li $a0 %d\n", (ast -> next)-> value);
@@ -371,11 +405,25 @@ void generateCode (no *ast){
 			fprintf(output, "sw $a0, %s\n\n",(ast->down) -> svalue);
 			//fprintf(output, "lw $a0, %s\n\n",(ast->down) -> svalue);
 		 	//getExpression(ast->next);
-		}
+			}
+		}	
 	}
 	
 	//Print generation
 	if (!strcmp(ast->type, "chamada de funcao")){
+		if (isIf == 1){
+			ifCount++;
+		}if (isWhile==1){
+			whileCount++;
+		}if ((isWhile==0 && whileCount > 0) && (isIf==0 && ifCount > 0)){
+			whileCount--;
+			ifCount--;
+		}else if (isWhile==0 && whileCount > 0){
+			whileCount--;
+		
+		}else if (isIf==0 && ifCount > 0){
+			ifCount--;
+		}else{	
 		if (!strcmp((ast->down)->svalue, "print")){
 			if (!strcmp((ast->next->down)->type, "id")){
 				fprintf(output, "lw $a0,%s\n",(ast -> next->down)-> svalue);
@@ -392,14 +440,27 @@ void generateCode (no *ast){
 			}
 		}
 
-		
+	}
 	}
 	
 	//If generation 
 	if (!strcmp(ast->type, "if")){
+		if (isIf == 1){
+			ifCount++;
+		}if (isWhile==1){
+			whileCount++;
+		}if ((isWhile==0 && whileCount > 0) && (isIf==0 && ifCount > 0)){
+			whileCount--;
+			ifCount--;
+		}else if (isWhile==0 && whileCount > 0){
+			whileCount--;
+		}else if (isIf==0 && ifCount > 0){
+			ifCount--;
+		}else{			
 		int endLabelif;		
 		labelNumber++;
 		endLabelif=labelNumber;
+		isIf=1;
 		fprintf(output, "#inicio do if\n");		
 		callComp(ast -> next,endLabelif);		
 		fprintf(output, "b Endlabel%d\n\n",endLabelif);
@@ -409,16 +470,30 @@ void generateCode (no *ast){
 		codeGen((ast -> down));	
 		fprintf(output, "#fim do bloco e do if\n");
 		fprintf(output, "Endlabel%d: \n",endLabelif);
+		if (isWhile==1) whileCount=whileCount - ifCount;
+		isIf=0;
 		labelNumber++;
-	}		
-
+		}
+	}
 	
-
 	//while generation 
 	if (!strcmp(ast->type, "while")){
+		if (isIf == 1){
+			ifCount++;
+		}if (isWhile==1){
+			whileCount++;
+		}if ((isWhile==0 && whileCount > 0) && (isIf==0 && ifCount > 0)){
+			whileCount--;
+			ifCount--;
+		}if (isWhile==0 && whileCount > 0){
+			whileCount--;
+		}else if (isIf==0 && ifCount > 0){
+			ifCount--;
+		}else{			
 		int endLabel;		
 		whileLabel++;
 		endLabel=whileLabel;
+		isWhile=1;
 		fprintf(output, "#inicio do while\n");		
 		callWhileComp(ast -> next,endLabel);		
 		fprintf(output, "b wEndlabel%d\n\n",endLabel);
@@ -430,7 +505,10 @@ void generateCode (no *ast){
 		callWhileComp(ast -> next,endLabel);
 		fprintf(output, "#Fim do while\n");	
 		fprintf(output, "wEndlabel%d: \n", endLabel);
+		if (isIf==1) ifCount=ifCount-whileCount;
+		isWhile=0;
 		whileLabel++;
+		}
 	}
 	
 }
