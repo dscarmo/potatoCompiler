@@ -58,6 +58,10 @@ var 		{printf("Token: %s Type: VAR\n", yytext);return TOKEN_VAR;}
 "."     	{printf("Token: %s Type: POINT\n", yytext);return TOKEN_POINT;}
 
 \n			{++line_num;}
+\n\n			{line_num=line_num+2;}
+\n\n\n			{line_num=line_num+3;}
+\n\n\n\n		{line_num=line_num+4;}
+\n\n\n\n\n		{line_num=line_num+5;}
 {blank}     ;
 .			{printf("Lexical error! %s not recognized \n", yytext);}
   
